@@ -1,0 +1,126 @@
+import { useState, useEffect, useRef } from "react";
+import { Calendar, dateFnsLocalizer } from "react-big-calendar";
+import format from "date-fns/format";
+import parse from "date-fns/parse";
+import startOfWeek from "date-fns/startOfWeek";
+import getDay from "date-fns/getDay";
+import enUS from "date-fns/locale/en-US";
+import "react-big-calendar/lib/css/react-big-calendar.css";
+import { getMatches } from "@/services/matches";
+
+const locales = {
+  "en-US": enUS,
+};
+
+const localizer = dateFnsLocalizer({
+  format,
+  parse,
+  startOfWeek,
+  getDay,
+  locales,
+});
+
+const MatchCalendar = () => {
+  const [matches, setMatches] = useState([]);
+  const [selectedMatch, setSelectedMatch] = useState(null);
+  const modalRef = useRef(null);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const response = await getMatches();
+
+      // Transform match data into Calendar event format
+      const transformedMatches = response.map((match) => {
+        const start = new Date(match.scheduled_datetime);
+        const end = new Date(
+          new Date(match.scheduled_datetime).getTime() + 2 * 60 * 60 * 1000
+        ); // +2 hours
+
+        return {
+          id: match.id,
+          title: `${match.team_a.name} vs ${match.team_b.name}`,
+          start,
+          end,
+          venue: match.venue,
+          status: match.status,
+          league: match.league?.category,
+          teamA: match.team_a,
+          teamB: match.team_b,
+        };
+      });
+
+      setMatches(transformedMatches);
+    };
+
+    fetchData();
+  }, []);
+
+  useEffect(() => {
+    if (selectedMatch && modalRef.current) {
+      modalRef.current.showModal();
+    }
+  }, [selectedMatch]);
+
+  const handleSelectEvent = (event) => {
+    setSelectedMatch(event);
+  };
+
+  const closeModal = () => {
+    if (modalRef.current) {
+      modalRef.current.close();
+    }
+    setSelectedMatch(null);
+  };
+
+  return (
+    <div className="p-4 bg-white shadow-xl rounded-lg">
+      <Calendar
+        localizer={localizer}
+        events={matches}
+        startAccessor="start"
+        endAccessor="end"
+        onSelectEvent={handleSelectEvent}
+        style={{ height: 400 }}
+      />
+
+      {/* Modal for match info */}
+      <dialog ref={modalRef} className="modal modal-bottom sm:modal-middle">
+        <div className="modal-box">
+          {selectedMatch && (
+            <div>
+              <p>
+                <strong>Date:</strong> {format(selectedMatch.start, "PPpp")}
+              </p>
+              <p>
+                <strong>End:</strong> {format(selectedMatch.end, "PPpp")}
+              </p>
+              <p>
+                <strong>Location:</strong> {selectedMatch.venue}
+              </p>
+              <p>
+                <strong>Status:</strong> {selectedMatch.status}
+              </p>
+              <p>
+                <strong>League:</strong> {selectedMatch.league}
+              </p>
+              <p>
+                <strong>Match:</strong> {selectedMatch.teamA.name} vs{" "}
+                {selectedMatch.teamB.name}
+              </p>
+
+              <div className="modal-action mt-4">
+                <form method="dialog">
+                  <button className="btn" onClick={closeModal}>
+                    Close
+                  </button>
+                </form>
+              </div>
+            </div>
+          )}
+        </div>
+      </dialog>
+    </div>
+  );
+};
+
+export default MatchCalendar;
