@@ -11,11 +11,20 @@ export const getTeams = async () => {
   }
 };
 
+export const getCategoryType = async (category) => {
+  try {
+    const response = await axios.post(`${url}/teams/getCategoryType`, category);
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching data", error);
+  }
+};
+
 export const createTeam = async (form) => {
   const formData = {
     school_id: parseInt(form.school_id),
     name: form.name,
-    category: form.category,
+    category_id: parseInt(form.category_id),
   };
 
   try {
@@ -30,7 +39,7 @@ export const updateTeam = async (id, form) => {
   const formData = {
     school_id: parseInt(form.school_id),
     name: form.name,
-    category: form.category,
+    category_id: parseInt(form.category_id),
   };
 
   try {

@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { Calendar, dateFnsLocalizer } from "react-big-calendar";
+import { Calendar, dateFnsLocalizer, Views } from "react-big-calendar";
 import format from "date-fns/format";
 import parse from "date-fns/parse";
 import startOfWeek from "date-fns/startOfWeek";
@@ -28,13 +28,9 @@ const MatchCalendar = () => {
   useEffect(() => {
     const fetchData = async () => {
       const response = await getMatches();
-
-      // Transform match data into Calendar event format
       const transformedMatches = response.map((match) => {
         const start = new Date(match.scheduled_datetime);
-        const end = new Date(
-          new Date(match.scheduled_datetime).getTime() + 2 * 60 * 60 * 1000
-        ); // +2 hours
+        const end = new Date(start.getTime() + 2 * 60 * 60 * 1000); // +2 hours
 
         return {
           id: match.id,
@@ -80,14 +76,18 @@ const MatchCalendar = () => {
         startAccessor="start"
         endAccessor="end"
         onSelectEvent={handleSelectEvent}
-        style={{ height: 400 }}
+        style={{ height: 450 }}
+        views={["month", "week", "day", "agenda"]}
+        defaultView="month"
+        toolbar={true}
+        popup
       />
 
-      {/* Modal for match info */}
+      {/* Modal */}
       <dialog ref={modalRef} className="modal modal-bottom sm:modal-middle">
         <div className="modal-box">
           {selectedMatch && (
-            <div>
+            <>
               <p>
                 <strong>Date:</strong> {format(selectedMatch.start, "PPpp")}
               </p>
@@ -115,7 +115,7 @@ const MatchCalendar = () => {
                   </button>
                 </form>
               </div>
-            </div>
+            </>
           )}
         </div>
       </dialog>

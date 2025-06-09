@@ -1,18 +1,37 @@
 import AdminSection from "@/components/admin/AdminSection";
-import Table from "@/components/admin/tables/SchoolsTable";
 import StandingsTable from "@/components/admin/tables/StandingsTable";
-import { getStandings } from "@/services/standings";
+import { getStandings, getStandingsCategory } from "@/services/standings";
 import React, { useEffect, useState } from "react";
 
 const Standings = () => {
   const [standings, setStandings] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [category, setCategory] = useState("Basketball");
 
+  const handleCategory = async (e) => {
+    const selectedCategory = e.target.value;
+    setCategory(selectedCategory);
+    setLoading(true);
+
+    try {
+      const response = await getStandingsCategory({
+        category: selectedCategory,
+      });
+      setStandings(response);
+    } catch (error) {
+      console.error(error);
+      setLoading(true);
+    } finally {
+      setLoading(false);
+    }
+  };
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
       try {
-        const response = await getStandings();
+        const response = await getStandingsCategory(
+          { category: category } || []
+        );
         setStandings(response);
       } catch (error) {
         console.error(error);
@@ -28,23 +47,17 @@ const Standings = () => {
     <AdminSection>
       <div className="flex justify-between">
         <h2 className="text-xl font-bold mb-4">Team Standings</h2>
-        {/* Open the modal using document.getElementById('ID').showModal() method */}
-        {/* <button
-          className="btn"
-          onClick={() => document.getElementById("my_modal_5").showModal()}
-        >
-          Add Team
-        </button>
-        <dialog id="my_modal_5" className="modal modal-bottom sm:modal-middle">
-          <div className="modal-box">
-            <input type="datetime-local" name="" id="" />
-            <div className="modal-action">
-              <form method="dialog">
-                <button className="btn">Close</button>
-              </form>
-            </div>
-          </div>
-        </dialog> */}
+
+        <div className="flex">
+          <select
+            className="select border border-gray-300"
+            onChange={handleCategory}
+          >
+            <option value="Basketball">Basketball</option>
+            <option value="Volleyball">Volleyball</option>
+            <option value="Badminton">Badminton</option>
+          </select>
+        </div>
       </div>
 
       <StandingsTable standings={standings} loading={loading} />

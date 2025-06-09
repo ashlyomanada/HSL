@@ -10,6 +10,8 @@ import { useToggle } from "@/context/ToggleProvider";
 import Schools from "./Schools";
 import Leagues from "./Leagues";
 import Matches from "./Matches";
+import MatchDetails from "@/layouts/MatchDetails";
+import Categories from "./Categories";
 
 const AdminPage = () => {
   const { toggle } = useToggle();
@@ -31,6 +33,8 @@ const AdminPage = () => {
             <Route path="/admin/results" element={<Results />} />
             <Route path="/admin/standings" element={<Standings />} />
             <Route path="/admin/leagues" element={<Leagues />} />
+            <Route path="/admin/matches/:id/:name" element={<MatchDetails />} />
+            <Route path="/admin/categories" element={<Categories />} />
           </Routes>
         </section>
       </main>

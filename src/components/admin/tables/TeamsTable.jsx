@@ -47,7 +47,7 @@ const TeamsTable = ({ teams, handleEdit, handleDelete, loading }) => {
                     </div>
                   </div>
                 </td>
-                <td className="text-center">{team.category}</td>
+                <td className="text-center">{team.category.category}</td>
                 <td>
                   <div className="flex gap-3 items-center justify-center">
                     <button
@@ -71,7 +71,7 @@ const TeamsTable = ({ teams, handleEdit, handleDelete, loading }) => {
           ) : (
             <tr>
               <td colSpan="4" className="text-center py-5">
-                No Teams Found
+                No Teams found for selected category
               </td>
             </tr>
           )}

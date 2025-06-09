@@ -9,9 +9,9 @@ const ScheduleTable = ({ matches, handleEdit, handleDelete, loading }) => {
         {/* head */}
         <thead>
           <tr>
-            <th className="text-center">Team A</th>
+            <th>Team A</th>
             <th className="text-center"></th>
-            <th className="text-center">Team B</th>
+            <th>Team B</th>
             <th className="text-center">Schedule</th>
             <th className="text-center">Venue</th>
             <th className="text-center">Status</th>

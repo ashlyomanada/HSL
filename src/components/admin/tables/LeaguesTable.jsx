@@ -29,7 +29,7 @@ const LeaguesTable = ({ leagues, loading, handleEdit, handleDelete }) => {
               <tr key={league.id}>
                 <td>{league.name}</td>
                 <td className="text-center">{league.season}</td>
-                <td className="text-center">{league.category}</td>
+                <td className="text-center">{league.category.category}</td>
                 <td className="text-center">
                   {format(
                     new Date(league.start_date),

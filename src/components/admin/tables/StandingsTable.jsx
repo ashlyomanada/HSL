@@ -27,12 +27,12 @@ const StandingsTable = ({ standings, loading }) => {
               </td>
             </tr>
           ) : standings?.length > 0 ? (
-            standings.map((standing) => (
-              <tr>
-                <td className="text-center font-semibold">{standing.rank}</td>
+            standings.map((standing, index) => (
+              <tr key={standing.id}>
+                <td className="text-center font-semibold">{index + 1}</td>
                 <td className="text-center">{standing.league.name}</td>
-                <td className="text-center">
-                  <div className="flex justify-center items-center gap-3">
+                <td>
+                  <div className="flex items-center gap-3 pl-12">
                     <div className="avatar">
                       <div className="mask mask-squircle h-12 w-12">
                         <img
@@ -75,7 +75,7 @@ const StandingsTable = ({ standings, loading }) => {
             ))
           ) : (
             <tr>
-              <td className="text-center" colsSpan="7">
+              <td className="text-center" colSpan="7">
                 No Standings found
               </td>
             </tr>

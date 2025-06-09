@@ -5,6 +5,7 @@ import { useToggle } from "@/context/ToggleProvider";
 const navItems = [
   { to: "/admin/dashboard", icon: "fa-chart-simple", label: "Dashboard" },
   { to: "/admin/schedule", icon: "fa-calendar-days", label: "Schedule" },
+  { to: "/admin/categories", icon: "fa-layer-group", label: "Categories" },
   { to: "/admin/matches", icon: "fa-trophy", label: "Matches" },
   { to: "/admin/Schools", icon: "fa-school", label: "Schools" },
   { to: "/admin/teams", icon: "fa-people-group", label: "Teams" },
@@ -63,7 +64,7 @@ const Navbar = () => {
               to={to}
               icon={icon}
               label={label}
-              isActive={pathname === to}
+              isActive={pathname.includes(to)}
               toggle={toggle}
             />
           ))}
@@ -90,7 +91,7 @@ const Navbar = () => {
               to={to}
               icon={icon}
               label={label}
-              isActive={pathname === to}
+              isActive={pathname.includes(to)}
               toggle={true}
               handleToggle={handleToggle}
             />

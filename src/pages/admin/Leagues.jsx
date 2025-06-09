@@ -9,14 +9,16 @@ import {
   updateLeagues,
 } from "@/services/league";
 import Swal from "sweetalert2";
+import { getCategories } from "@/services/categories";
 
 const Leagues = () => {
   const [leagues, setLeagues] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [categories, setCategories] = useState([]);
   const [form, setForm] = useState({
     name: "",
     season: "",
-    category: "",
+    category_id: "",
     start_date: "",
     end_date: "",
   });
@@ -27,7 +29,9 @@ const Leagues = () => {
     setLoading(true);
     try {
       const response = await getLeagues();
+      const categRes = await getCategories();
       setLeagues(response);
+      setCategories(categRes);
     } catch (error) {
       console.error("Error fetching data:", error);
       setLoading(true);
@@ -63,7 +67,7 @@ const Leagues = () => {
       setForm({
         name: "",
         season: "",
-        category: "",
+        category_id: "",
         start_date: "",
         end_date: "",
       });
@@ -78,7 +82,7 @@ const Leagues = () => {
     setForm({
       name: form.name,
       season: form.season,
-      category: form.category,
+      category_id: form.category.id,
       start_date: form.start_date,
       end_date: form.end_date,
     });
@@ -112,6 +116,18 @@ const Leagues = () => {
       console.error(error);
       Swal.fire("Error", "Failed to delete the League.", "error");
     }
+  };
+
+  const handleCloseModal = () => {
+    setEditingId(null);
+    setForm({
+      name: "",
+      season: "",
+      category_id: "",
+      start_date: "",
+      end_date: "",
+    });
+    modalRef.current.close();
   };
 
   useEffect(() => {
@@ -169,17 +185,24 @@ const Leagues = () => {
             </label>
 
             {/* Category Input */}
-            <label className="floating-label">
-              <input
-                type="text"
-                placeholder="Enter Category name"
+            <label className="select border border-gray-300 w-full">
+              <span className="label">Sports</span>
+              <select
                 className="input input-md border border-gray-300 w-full"
-                value={form.category}
+                value={form.category_id}
                 onChange={(e) =>
-                  setForm((prev) => ({ ...prev, category: e.target.value }))
+                  setForm((prev) => ({ ...prev, category_id: e.target.value }))
                 }
-              />
-              <span>Category name</span>
+                required
+              >
+                <option value="">-- Choose Sport --</option>
+                {categories?.length > 0 &&
+                  categories.map((categ) => (
+                    <option key={categ.id} value={categ.id}>
+                      {categ.category}
+                    </option>
+                  ))}
+              </select>
             </label>
 
             {/* Start Date Input */}
@@ -214,12 +237,7 @@ const Leagues = () => {
               >
                 Submit
               </button>
-              <div
-                className="btn btn-medium"
-                onClick={() => {
-                  modalRef.current.close();
-                }}
-              >
+              <div className="btn btn-medium" onClick={handleCloseModal}>
                 Close
               </div>
             </div>

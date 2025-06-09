@@ -1,18 +1,31 @@
 import AdminSection from "@/components/admin/AdminSection";
 import SubHeader from "@/components/admin/SubHeader";
 import TeamsTable from "@/components/admin/tables/TeamsTable";
+import { getCategories } from "@/services/categories";
 import { getSchools } from "@/services/schools";
-import { getTeams, createTeam, updateTeam, deleteTeam } from "@/services/team";
+import {
+  getTeams,
+  createTeam,
+  updateTeam,
+  deleteTeam,
+  getCategoryType,
+} from "@/services/team";
 import React, { useEffect, useRef, useState } from "react";
 import Swal from "sweetalert2";
 
 const Teams = () => {
   const [editingId, setEditingId] = useState(null);
-  const [form, setForm] = useState({ school_id: "", name: "", category: "" });
+  const [form, setForm] = useState({
+    school_id: "",
+    name: "",
+    category_id: "",
+  });
   const [schools, setSchools] = useState([]);
   const [teams, setTeams] = useState([]);
   const [loading, setLoading] = useState(false);
   const modalRef = useRef(null);
+  const [categoryType, setCategoryType] = useState(null);
+  const [category, setCategory] = useState([]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -36,10 +49,15 @@ const Teams = () => {
       }
       setEditingId(null);
       modalRef.current.close();
-      setForm({ school_id: "", name: "", category: "" });
+      setForm({ school_id: "", name: "", category_id: "" });
 
-      const response = await getTeams();
-      setTeams(response);
+      if (categoryType) {
+        const response = await getCategoryType({ category_id: categoryType });
+        setTeams(response);
+      } else {
+        const response = await getTeams();
+        setTeams(response);
+      }
     } catch (error) {
       console.error(error);
     }
@@ -50,14 +68,14 @@ const Teams = () => {
     setForm({
       school_id: team.school_id,
       name: team.name,
-      category: team.category,
+      category_id: team.category_id,
     });
     setEditingId(team.id);
   };
 
   const handleModalClose = () => {
     setEditingId(null);
-    setForm({ school_id: "", name: "", category: "" });
+    setForm({ school_id: "", name: "", category_id: "" });
     modalRef.current.close();
   };
 
@@ -93,6 +111,21 @@ const Teams = () => {
     }
   };
 
+  const handleCategory = async (e) => {
+    const selectedCategory = e.target.value;
+    setCategoryType(e.target.value);
+    setLoading(true);
+    try {
+      const response = await getCategoryType({ category_id: selectedCategory });
+      setTeams(response);
+    } catch (error) {
+      console.error(error);
+      setLoading(true);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
     const fetchSchools = async () => {
       const response = await getSchools();
@@ -105,13 +138,23 @@ const Teams = () => {
         const response = await getTeams();
         setTeams(response);
       } catch (error) {
-        console.error("Error fetching data:", error);
+        console.error(error);
         setLoading(true);
       } finally {
         setLoading(false);
       }
     };
 
+    const fetchCategory = async () => {
+      try {
+        const response = await getCategories();
+        setCategory(response);
+      } catch (error) {
+        console.error(error);
+      }
+    };
+
+    fetchCategory();
     fetchSchools();
     fetchTeams();
   }, []);
@@ -120,10 +163,18 @@ const Teams = () => {
       <SubHeader>
         <h2 className="text-xl font-bold mb-4">Manage Teams</h2>
         <div className="flex items-center gap-5">
-          <select className="select border border-gray-300">
-            <option value="Basketball">Basketball</option>
-            <option value="Volleyball">Volleyball</option>
-            <option value="Badminton">Badminton</option>
+          <select
+            className="select border border-gray-300"
+            onChange={handleCategory}
+            required
+          >
+            <option value="">-- Choose Sport --</option>
+            {category?.length > 0 &&
+              category.map((categ) => (
+                <option key={categ.id} value={categ.id}>
+                  {categ.category}
+                </option>
+              ))}
           </select>
           <button className="btn" onClick={() => modalRef.current.showModal()}>
             Add Team
@@ -182,16 +233,19 @@ const Teams = () => {
               <span className="label-text mb-1">Select Sport</span>
               <select
                 className="select select-bordered w-full"
-                value={form.category}
+                value={form.category_id}
                 onChange={(e) =>
-                  setForm((prev) => ({ ...prev, category: e.target.value }))
+                  setForm((prev) => ({ ...prev, category_id: e.target.value }))
                 }
                 required
               >
                 <option value="">-- Choose Sport --</option>
-                <option value="Basketball">Basketball</option>
-                <option value="Volleyball">Volleyball</option>
-                <option value="Badminton">Badminton</option>
+                {category?.length > 0 &&
+                  category.map((categ) => (
+                    <option key={categ.id} value={categ.id}>
+                      {categ.category}
+                    </option>
+                  ))}
               </select>
             </label>
 
