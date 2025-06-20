@@ -3,7 +3,7 @@ import AdminSection from "@/components/admin/AdminSection";
 import SubHeader from "@/components/admin/SubHeader";
 import { getCategories } from "@/services/categories";
 import { Link } from "react-router-dom";
-const Matches = () => {
+const ResultsCategory = () => {
   const [categories, setCategories] = useState([]);
 
   useEffect(() => {
@@ -28,7 +28,7 @@ const Matches = () => {
         {categories?.length > 0 &&
           categories.map((categ) => (
             <Link
-              to={`/admin/matches/${categ.id}/${categ.category}`}
+              to={`/admin/results/${categ.id}/${categ.category}`}
               className="aspect-video bg-darkBlue rounded-lg text-white flex  gap-5 items-center px-5"
               key={categ.id}
             >
@@ -46,4 +46,4 @@ const Matches = () => {
   );
 };
 
-export default Matches;
+export default ResultsCategory;

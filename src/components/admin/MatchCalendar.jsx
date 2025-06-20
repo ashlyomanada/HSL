@@ -39,7 +39,7 @@ const MatchCalendar = () => {
           end,
           venue: match.venue,
           status: match.status,
-          league: match.league?.category,
+          category: match.league?.category?.category || "No category", // <-- here
           teamA: match.team_a,
           teamB: match.team_b,
         };
@@ -101,7 +101,7 @@ const MatchCalendar = () => {
                 <strong>Status:</strong> {selectedMatch.status}
               </p>
               <p>
-                <strong>League:</strong> {selectedMatch.league}
+                <strong>Sports:</strong> {selectedMatch.category}
               </p>
               <p>
                 <strong>Match:</strong> {selectedMatch.teamA.name} vs{" "}

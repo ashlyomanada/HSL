@@ -2,7 +2,11 @@ import React, { useEffect, useRef, useState } from "react";
 import AdminSection from "@/components/admin/AdminSection";
 import SubHeader from "@/components/admin/SubHeader";
 import ScheduleTable from "@/components/admin/tables/ScheduleTable";
-import { getLeagues, getSelectedLeagues } from "@/services/league";
+import {
+  getLeagueCategory,
+  getLeagues,
+  getSelectedLeagues,
+} from "@/services/league";
 import { getCategoryType, getTeams } from "@/services/team";
 import {
   createMatches,
@@ -17,7 +21,7 @@ import { useNavigate, useParams } from "react-router-dom";
 
 const MatchDetails = () => {
   const [matches, setMatches] = useState([]);
-  const [leagues, setLeagues] = useState([]);
+  const [leagues, setLeagues] = useState(null);
   const [teams, setTeams] = useState([]);
   const navigate = useNavigate();
   const [form, setForm] = useState({
@@ -101,9 +105,9 @@ const MatchDetails = () => {
       setLoading(true);
       try {
         const matchesRes = await getMatchesCategory({ category_id: id });
-        const leagueRes = await getLeagues();
+        const leagueRes = await getLeagueCategory({ category_id: id });
         const teamRes = await getCategoryType({ category_id: id });
-        console.log(teamRes);
+        // console.log(leagueRes);
         setMatches(matchesRes);
         setLeagues(leagueRes);
         setTeams(teamRes);
@@ -199,11 +203,12 @@ const MatchDetails = () => {
                 required
               >
                 <option value="">-- Choose Sport --</option>
-                {leagues.map((league) => (
-                  <option key={league.id} value={league.id}>
-                    {league.category.category}
+                {leagues && (
+                  <option value={leagues.id}>
+                    {leagues.category?.category ||
+                      "No Teams yet for this Sport"}
                   </option>
-                ))}
+                )}
               </select>
             </label>
 

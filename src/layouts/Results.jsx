@@ -1,13 +1,10 @@
 import AdminSection from "@/components/admin/AdminSection";
 import SubHeader from "@/components/admin/SubHeader";
-import {
-  getMatches,
-  updateMatches,
-  getMatchesCategory,
-} from "@/services/matches";
+import { updateMatches, getMatchesCategory } from "@/services/matches";
 import { createScores, updateScores } from "@/services/scores";
 import { createStandings, getTeamStanding } from "@/services/standings";
 import React, { useEffect, useRef, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 import Swal from "sweetalert2";
 
 const Results = () => {
@@ -23,6 +20,7 @@ const Results = () => {
     updated_by: 1,
   });
   const [loading, setLoading] = useState(false);
+  const [submitLoading, setSubmitLoading] = useState(false);
   const [logoUrlA, setLogoUrlA] = useState(null);
   const [logoUrlB, setLogoUrlB] = useState(null);
   const [matchStatus, setMatchStatus] = useState({
@@ -54,12 +52,14 @@ const Results = () => {
     points: "",
     rank: "",
   });
+  const { id, name } = useParams();
+  const navigate = useNavigate();
 
   const url = import.meta.env.VITE_STORAGE_URL;
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true);
+    setSubmitLoading(true);
     try {
       await createScores(form);
       await updateMatches(editingId, matchStatus);
@@ -125,6 +125,9 @@ const Results = () => {
         await createStandings(updatedStandingB);
       }
 
+      const response = await getMatchesCategory({ category_id: id });
+      setMatches(response);
+
       modalRef.current.close();
       Swal.fire({
         title: "Success!",
@@ -132,15 +135,11 @@ const Results = () => {
         icon: "success",
         confirmButtonText: "OK",
       });
-      const response = await getMatchesCategory(
-        { category: selectedCategory } || []
-      );
-      setMatches(response);
     } catch (error) {
       console.log(error);
-      setLoading(true);
+      setSubmitLoading(true);
     } finally {
-      setLoading(false);
+      setSubmitLoading(false);
     }
   };
 
@@ -169,8 +168,7 @@ const Results = () => {
   };
 
   const handleEdit = (match) => {
-    const matchStarted =
-      match.status !== "Not Started" && match.status !== "Finished";
+    const matchStarted = match.status !== "Finished";
 
     if (matchStarted) {
       modalRef.current.showModal();
@@ -213,26 +211,11 @@ const Results = () => {
     }));
   };
 
-  const handleCategory = async (e) => {
-    const selectedCategory = e.target.value;
-    setLoading(true);
-    try {
-      const response = await getMatchesCategory(
-        { category: selectedCategory } || []
-      );
-      setMatches(response);
-    } catch (error) {
-      console.error(error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
       try {
-        const matchesRes = await getMatches();
+        const matchesRes = await getMatchesCategory({ category_id: id });
         setMatches(matchesRes);
       } catch (error) {
         console.error(error);
@@ -248,18 +231,11 @@ const Results = () => {
   return (
     <AdminSection>
       <SubHeader>
-        <h2 className="text-xl font-bold mb-4">Manage Results</h2>
-        {/* Open the modal using document.getElementById('ID').showModal() method */}
-        <div className="flex items-center gap-3">
-          <select
-            className="select border border-gray-300"
-            onChange={handleCategory}
-          >
-            <option value="Basketball">Basketball</option>
-            <option value="Volleyball">Volleyball</option>
-            <option value="Badminton">Badminton</option>
-          </select>
-        </div>
+        <h2 className="text-xl font-bold mb-4">Manage Results for {name}</h2>
+
+        <button className="btn" onClick={() => navigate(-1)}>
+          Back
+        </button>
       </SubHeader>
 
       <dialog ref={modalRef} className="modal modal-bottom sm:modal-middle">
@@ -348,11 +324,11 @@ const Results = () => {
               <button
                 type="submit"
                 className={`btn btn-success btn-medium ${
-                  loading ? "text-black" : "text-white"
+                  submitLoading ? "text-black" : "text-white"
                 }`}
-                disabled={loading}
+                disabled={submitLoading}
               >
-                {loading ? "Updating... Score" : "Update Score"}
+                {submitLoading ? "Updating... Score" : "Update Score"}
               </button>
               <button className="btn" onClick={handleCloseModal}>
                 Close
@@ -435,7 +411,7 @@ const Results = () => {
             ))
           ) : (
             <div className="h-full w-full flex items-center justify-center absolute left-0 top-0">
-              No Results for selected category
+              No Match Results yet for {name}
             </div>
           )}
         </div>

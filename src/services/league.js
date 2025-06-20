@@ -19,6 +19,15 @@ export const getSelectedLeagues = async (id) => {
   }
 };
 
+export const getLeagueCategory = async (form) => {
+  try {
+    const response = await axios.post(`${url}/leagues/getLeagueCategory`, form);
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching leagues", error);
+  }
+};
+
 export const createLeagues = async (form) => {
   try {
     const response = await axios.post(`${url}/leagues`, form);
