@@ -5,20 +5,20 @@ import { useToggle } from "@/context/ToggleProvider";
 const navItems = [
   { to: "/admin/dashboard", icon: "fa-chart-simple", label: "Dashboard" },
   { to: "/admin/schedule", icon: "fa-calendar-days", label: "Schedule" },
-  { to: "/admin/categories", icon: "fa-layer-group", label: "Categories" },
   { to: "/admin/matches", icon: "fa-trophy", label: "Matches" },
-  { to: "/admin/Schools", icon: "fa-school", label: "Schools" },
-  { to: "/admin/teams", icon: "fa-people-group", label: "Teams" },
   { to: "/admin/results", icon: "fa-ranking-star", label: "Results" },
+  { to: "/admin/teams", icon: "fa-people-group", label: "Teams" },
   { to: "/admin/standings", icon: "fa-medal", label: "Standings" },
   { to: "/admin/leagues", icon: "fa-award", label: "Leagues" },
+  { to: "/admin/categories", icon: "fa-layer-group", label: "Categories" },
+  { to: "/admin/Schools", icon: "fa-school", label: "Schools" },
 ];
 
 const NavItem = ({ to, icon, label, isActive, toggle, handleToggle }) => (
   <li
-    className={`hover:bg-lightDarkBlue transition-all duration-300 py-3 
+    className={`hover:bg-blue-900 transition-all duration-300 py-3 
       ${toggle ? "rounded-lg px-3" : "rounded-full px-5"} 
-      ${isActive ? "bg-lightDarkBlue text-blue-500" : "bg-transparent"}`}
+      ${isActive ? "bg-blue-900 text-white" : "bg-transparent"}`}
   >
     <Link
       to={to}
@@ -51,7 +51,7 @@ const Navbar = () => {
         <div className="flex justify-start items-center gap-3 px-2.5">
           <i className="fa-solid fa-user-tie text-xl"></i>
           {toggle && (
-            <h1 className="px-2 text-2xl font-semibold delay-1000">
+            <h1 className="px-2 lg:text-xl xl:text-2xl font-semibold delay-1000">
               HSL Admin
             </h1>
           )}
@@ -80,7 +80,7 @@ const Navbar = () => {
         <div className="flex justify-between">
           <h1 className="text-center px-2 text-2xl font-semibold">HSL</h1>
           <button onClick={() => setToggle(!toggle)}>
-            <i className="fa-solid fa-xmark font-semibold text-3xl"></i>
+            <i className="fa-solid fa-xmark font-semibold text-3xl cursor-pointer"></i>
           </button>
         </div>
 
@@ -105,7 +105,11 @@ const Navbar = () => {
           toggle ? "lg:w-[80%]" : "lg:w-[93%]"
         }`}
       >
-        <button onClick={() => setToggle(!toggle)} aria-label="Toggle Sidebar">
+        <button
+          className="cursor-pointer"
+          onClick={() => setToggle(!toggle)}
+          aria-label="Toggle Sidebar"
+        >
           <i className="fa-solid fa-bars"></i>
         </button>
       </div>

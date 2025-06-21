@@ -136,7 +136,7 @@ const Leagues = () => {
   return (
     <AdminSection>
       <SubHeader>
-        <h2 className="text-xl font-bold">Leagues</h2>
+        <h2 className="text-xl md:text-2xl font-bold">Leagues</h2>
         <button className="btn" onClick={() => modalRef.current.showModal()}>
           Add Leagues
         </button>

@@ -161,7 +161,7 @@ const Teams = () => {
   return (
     <AdminSection>
       <SubHeader>
-        <h2 className="text-xl font-bold mb-4">Manage Teams</h2>
+        <h2 className="text-xl md:text-2xl font-bold">Manage Teams</h2>
         <div className="flex items-center gap-5">
           <select
             className="select border border-gray-300"

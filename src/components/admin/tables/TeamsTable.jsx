@@ -1,4 +1,5 @@
 import React from "react";
+import Loader from "../loader/Loader";
 
 const TeamsTable = ({ teams, handleEdit, handleDelete, loading }) => {
   const url = import.meta.env.VITE_STORAGE_URL;
@@ -18,7 +19,7 @@ const TeamsTable = ({ teams, handleEdit, handleDelete, loading }) => {
           {loading ? (
             <tr>
               <td colSpan="4" className="text-center py-5">
-                Loading...
+                <Loader />
               </td>
             </tr>
           ) : teams?.length > 0 ? (

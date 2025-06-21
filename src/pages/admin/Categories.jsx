@@ -1,4 +1,5 @@
 import AdminSection from "@/components/admin/AdminSection";
+import Loader from "@/components/admin/loader/Loader";
 import SubHeader from "@/components/admin/SubHeader";
 import {
   createCategories,
@@ -15,6 +16,11 @@ const Categories = () => {
   const [form, setForm] = useState({ category: "", image_url: "" });
   const modalRef = useRef();
   const [previewUrl, setPreviewUrl] = useState(null);
+  const [loading, setLoading] = useState(false);
+
+  // Pagination states
+  const [currentPage, setCurrentPage] = useState(1);
+  const [categoriesPerPage] = useState(4);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -42,6 +48,7 @@ const Categories = () => {
       setForm({ category: "" });
       const response = await getCategories();
       setCategories(response);
+      setCurrentPage(1); // Reset to first page after changes
     } catch (error) {
       console.error(error);
     }
@@ -49,11 +56,10 @@ const Categories = () => {
 
   const handleEdit = (form) => {
     setEditingId(form.id);
-    setForm((prev) => ({
-      ...prev,
+    setForm({
       category: form.category,
       image_url: form.image_url,
-    }));
+    });
     modalRef.current.showModal();
     setPreviewUrl(`http://127.0.0.1:8000/storage/${form.image_url}`);
   };
@@ -81,7 +87,8 @@ const Categories = () => {
     if (result.isConfirmed) {
       try {
         await deleteCategories(id);
-        setCategories((prev) => prev.filter((category) => category.id !== id));
+        const updated = categories.filter((category) => category.id !== id);
+        setCategories(updated);
         Swal.fire({
           title: "Deleted!",
           text: "The Category has been deleted.",
@@ -89,6 +96,10 @@ const Categories = () => {
           timer: 1500,
           showConfirmButton: false,
         });
+
+        // Adjust page if last item was deleted on last page
+        const totalPages = Math.ceil(updated.length / categoriesPerPage);
+        if (currentPage > totalPages) setCurrentPage(totalPages);
       } catch (error) {
         console.error(error);
         Swal.fire("Error", "Failed to delete the Category.", "error");
@@ -98,16 +109,33 @@ const Categories = () => {
 
   useEffect(() => {
     const fetchCategories = async () => {
-      const response = await getCategories();
-      setCategories(response);
+      setLoading(true);
+      try {
+        const response = await getCategories();
+        setCategories(response);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      } finally {
+        setLoading(false);
+      }
     };
 
     fetchCategories();
   }, []);
+
+  // Pagination logic
+  const indexOfLastCategory = currentPage * categoriesPerPage;
+  const indexOfFirstCategory = indexOfLastCategory - categoriesPerPage;
+  const currentCategories = categories.slice(
+    indexOfFirstCategory,
+    indexOfLastCategory
+  );
+  const totalPages = Math.ceil(categories.length / categoriesPerPage);
+
   return (
     <AdminSection>
       <SubHeader>
-        <h2 className="text-xl font-bold">Manage Categories</h2>
+        <h2 className="text-xl md:text-2xl font-bold">Manage Categories</h2>
         <button className="btn" onClick={() => modalRef.current.showModal()}>
           Add Categories
         </button>
@@ -144,7 +172,6 @@ const Categories = () => {
               <label className="label">Max size 2MB</label>
             </fieldset>
 
-            {/* Name Input */}
             <label className="floating-label">
               <input
                 type="text"
@@ -158,7 +185,6 @@ const Categories = () => {
               <span>Category name</span>
             </label>
 
-            {/* Buttons */}
             <div className="flex justify-end gap-3">
               <button
                 type="submit"
@@ -192,8 +218,14 @@ const Categories = () => {
             </tr>
           </thead>
           <tbody>
-            {categories?.length > 0 &&
-              categories.map((category) => (
+            {loading ? (
+              <tr>
+                <td colSpan="3" className="text-center">
+                  <Loader />
+                </td>
+              </tr>
+            ) : currentCategories.length > 0 ? (
+              currentCategories.map((category) => (
                 <tr key={category.id}>
                   <td className="flex items-center justify-center">
                     <div className="mask mask-squircle h-12 w-12">
@@ -223,9 +255,33 @@ const Categories = () => {
                     </div>
                   </td>
                 </tr>
-              ))}
+              ))
+            ) : (
+              <tr>
+                <td colSpan="3" className="text-center text-gray-500">
+                  No categories available.
+                </td>
+              </tr>
+            )}
           </tbody>
         </table>
+
+        {/* Pagination controls */}
+        {totalPages > 1 && (
+          <div className="flex justify-center mt-4 gap-2 p-4">
+            {Array.from({ length: totalPages }, (_, i) => (
+              <button
+                key={i}
+                onClick={() => setCurrentPage(i + 1)}
+                className={`btn btn-sm ${
+                  currentPage === i + 1 ? "btn-primary" : "btn-outline"
+                }`}
+              >
+                {i + 1}
+              </button>
+            ))}
+          </div>
+        )}
       </div>
     </AdminSection>
   );

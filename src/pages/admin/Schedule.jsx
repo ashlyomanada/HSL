@@ -8,7 +8,7 @@ const Schedule = () => {
   return (
     <AdminSection>
       <SubHeader>
-        <h2 className="text-xl font-bold">Schedule</h2>
+        <h2 className="text-xl md:text-2xl font-bold">Schedule</h2>
       </SubHeader>
 
       <MatchCalendar />

@@ -1,5 +1,6 @@
 import React from "react";
 import { format, isValid } from "date-fns";
+import Loader from "../loader/Loader";
 
 const SingleMatchTable = ({ match, loading, handleDelete }) => {
   const url = import.meta.env.VITE_STORAGE_URL;
@@ -23,7 +24,7 @@ const SingleMatchTable = ({ match, loading, handleDelete }) => {
           {loading ? (
             <tr>
               <td colSpan="7" className="text-center">
-                Loading...
+                <Loader />
               </td>
             </tr>
           ) : match ? (

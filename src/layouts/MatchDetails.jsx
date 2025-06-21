@@ -7,23 +7,32 @@ import {
   getLeagues,
   getSelectedLeagues,
 } from "@/services/league";
-import { getCategoryType, getTeams } from "@/services/team";
+import { getCategoryType } from "@/services/team";
 import {
   createMatches,
   deleteMatches,
-  getMatches,
   getMatchesCategory,
   updateMatches,
 } from "@/services/matches";
 import Swal from "sweetalert2";
-import { set } from "date-fns";
 import { useNavigate, useParams } from "react-router-dom";
 
 const MatchDetails = () => {
   const [matches, setMatches] = useState([]);
   const [leagues, setLeagues] = useState(null);
   const [teams, setTeams] = useState([]);
+  const [startDate, setStartDate] = useState(null);
+  const [endDate, setEndDate] = useState(null);
+  const modalRef = useRef(null);
+  const [editingId, setEditingId] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const { id, name } = useParams();
   const navigate = useNavigate();
+
+  // Pagination
+  const [currentPage, setCurrentPage] = useState(1);
+  const [categoriesPerPage] = useState(5);
+
   const [form, setForm] = useState({
     league_id: "",
     team_a_id: "",
@@ -33,41 +42,40 @@ const MatchDetails = () => {
     status: "Not Started",
     referee_id: 1,
   });
-  const [startDate, setStartDate] = useState(null);
-  const [endDate, setEndDate] = useState(null);
-  const modalRef = useRef(null);
-  const [editingId, setEditingId] = useState(null);
-  const [loading, setLoading] = useState(false);
-  const { id, name } = useParams();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (editingId) {
-      await updateMatches(editingId, form);
-      Swal.fire({
-        title: "Success!",
-        text: "Match updated successfully.",
-        icon: "success",
-        confirmButtonText: "OK",
-      });
-
-      if (form.status === "Finished") {
+    try {
+      if (editingId) {
+        await updateMatches(editingId, form);
+        Swal.fire({
+          title: "Success!",
+          text: "Match updated successfully.",
+          icon: "success",
+          confirmButtonText: "OK",
+        });
+      } else {
+        const response = await createMatches(form);
+        Swal.fire({
+          title: "Success!",
+          text: "Match created successfully.",
+          icon: "success",
+          confirmButtonText: "OK",
+        });
+        setMatches(response);
       }
-    } else {
-      const response = await createMatches(form);
-      Swal.fire({
-        title: "Success!",
-        text: "Match created successfully.",
-        icon: "success",
-        confirmButtonText: "OK",
-      });
-      setMatches(response);
-    }
 
-    modalRef.current.close();
-    const matchesRes = await getMatchesCategory({ category_id: id });
-    setMatches(matchesRes);
-    setEditingId(null);
+      modalRef.current.close();
+      const matchesRes = await getMatchesCategory({
+        category_id: parseInt(id),
+        status: "Not Started",
+      });
+      setMatches(matchesRes);
+      setEditingId(null);
+      setCurrentPage(1); // Reset pagination
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   const handleModalClose = () => {
@@ -104,22 +112,31 @@ const MatchDetails = () => {
     const fetchData = async () => {
       setLoading(true);
       try {
-        const matchesRes = await getMatchesCategory({ category_id: id });
-        const leagueRes = await getLeagueCategory({ category_id: id });
-        const teamRes = await getCategoryType({ category_id: id });
-        // console.log(leagueRes);
-        setMatches(matchesRes);
-        setLeagues(leagueRes);
-        setTeams(teamRes);
+        if (id) {
+          const matchesRes = await getMatchesCategory({
+            category_id: parseInt(id),
+            status: "Not Started",
+          });
+          const leagueRes = await getLeagueCategory({
+            category_id: parseInt(id),
+          });
+          const teamRes = await getCategoryType({
+            category_id: parseInt(id),
+          });
+
+          setMatches(matchesRes);
+          setLeagues(leagueRes);
+          setTeams(teamRes);
+        }
       } catch (error) {
-        console.error("Error Fetching datas:", error);
+        console.error("Error Fetching data:", error);
         setLoading(true);
       } finally {
         setLoading(false);
       }
     };
     fetchData();
-  }, []);
+  }, [id]);
 
   const handleFormChange = (e) => {
     const { name, value } = e.target;
@@ -129,16 +146,16 @@ const MatchDetails = () => {
     }));
   };
 
-  const handleEdit = (matches) => {
+  const handleEdit = (match) => {
     modalRef.current.showModal();
-    setEditingId(matches.id);
+    setEditingId(match.id);
     setForm({
-      league_id: matches.league_id,
-      team_a_id: matches.team_a_id,
-      team_b_id: matches.team_b_id,
-      scheduled_datetime: matches.scheduled_datetime,
-      venue: matches.venue,
-      status: matches.status,
+      league_id: match.league_id,
+      team_a_id: match.team_a_id,
+      team_b_id: match.team_b_id,
+      scheduled_datetime: match.scheduled_datetime,
+      venue: match.venue,
+      status: match.status,
       referee_id: 1,
     });
   };
@@ -158,7 +175,8 @@ const MatchDetails = () => {
     try {
       if (result.isConfirmed) {
         await deleteMatches(id);
-        setMatches((prev) => prev.filter((match) => match.id !== id));
+        const updatedMatches = matches.filter((match) => match.id !== id);
+        setMatches(updatedMatches);
         Swal.fire({
           title: "Deleted!",
           text: "The Match has been deleted.",
@@ -166,15 +184,24 @@ const MatchDetails = () => {
           timer: 1500,
           showConfirmButton: false,
         });
+
+        const totalPages = Math.ceil(updatedMatches.length / categoriesPerPage);
+        if (currentPage > totalPages) setCurrentPage(totalPages);
       }
     } catch (error) {
-      Swal.fire("Error", "Failed to delete the League.", "error");
+      Swal.fire("Error", "Failed to delete the match.", "error");
     }
   };
 
   const filteredTeamsB = teams.filter(
     (team) => team.id !== parseInt(form.team_a_id)
   );
+
+  // Pagination logic
+  const indexOfLastMatch = currentPage * categoriesPerPage;
+  const indexOfFirstMatch = indexOfLastMatch - categoriesPerPage;
+  const currentMatches = matches.slice(indexOfFirstMatch, indexOfLastMatch);
+  const totalPages = Math.ceil(matches.length / categoriesPerPage);
 
   return (
     <AdminSection>
@@ -190,6 +217,7 @@ const MatchDetails = () => {
         </div>
       </SubHeader>
 
+      {/* Modal */}
       <dialog ref={modalRef} className="modal modal-bottom sm:modal-middle">
         <div className="modal-box">
           <form className="flex flex-col gap-2" onSubmit={handleSubmit}>
@@ -307,12 +335,30 @@ const MatchDetails = () => {
         </div>
       </dialog>
 
+      {/* Match Table */}
       <ScheduleTable
-        matches={matches}
+        matches={currentMatches}
         handleEdit={handleEdit}
         handleDelete={handleDelete}
         loading={loading}
       />
+
+      {/* Pagination */}
+      {totalPages > 1 && (
+        <div className="flex justify-center mt-4 gap-2 p-4">
+          {Array.from({ length: totalPages }, (_, i) => (
+            <button
+              key={i}
+              onClick={() => setCurrentPage(i + 1)}
+              className={`btn btn-sm ${
+                currentPage === i + 1 ? "btn-primary" : "btn-outline"
+              }`}
+            >
+              {i + 1}
+            </button>
+          ))}
+        </div>
+      )}
     </AdminSection>
   );
 };

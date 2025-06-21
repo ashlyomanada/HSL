@@ -1,6 +1,12 @@
 import AdminSection from "@/components/admin/AdminSection";
+import Empty from "@/components/admin/Empty";
+import Loader2 from "@/components/admin/loader/Loader2";
 import SubHeader from "@/components/admin/SubHeader";
-import { updateMatches, getMatchesCategory } from "@/services/matches";
+import {
+  updateMatches,
+  getMatchesCategory,
+  getMatches,
+} from "@/services/matches";
 import { createScores, updateScores } from "@/services/scores";
 import { createStandings, getTeamStanding } from "@/services/standings";
 import React, { useEffect, useRef, useState } from "react";
@@ -54,6 +60,8 @@ const Results = () => {
   });
   const { id, name } = useParams();
   const navigate = useNavigate();
+  const [teams, setTeams] = useState({ teamAName: "", teamBName: "" });
+  const [status, setStatus] = useState("Not Started");
 
   const url = import.meta.env.VITE_STORAGE_URL;
 
@@ -128,7 +136,7 @@ const Results = () => {
       const response = await getMatchesCategory({ category_id: id });
       setMatches(response);
 
-      modalRef.current.close();
+      handleCloseModal(e);
       Swal.fire({
         title: "Success!",
         text: "Match Updated successfully.",
@@ -165,10 +173,15 @@ const Results = () => {
       status: "",
       referee_id: 1,
     });
+
+    setTeams({ teamAName: "", teamBName: "" });
   };
 
   const handleEdit = (match) => {
     const matchStarted = match.status !== "Finished";
+
+    setTeams((prev) => ({ ...prev, teamAName: match.team_a.name }));
+    setTeams((prev) => ({ ...prev, teamBName: match.team_b.name }));
 
     if (matchStarted) {
       modalRef.current.showModal();
@@ -196,7 +209,7 @@ const Results = () => {
       setLogoUrlB(`${url}${match.team_b.school.logo_url}`);
     } else {
       Swal.fire({
-        text: "You can only edit scores for matches that have In Progress.",
+        text: "You can only edit scores for matches that not yet Finished.",
         icon: "warning",
         confirmButtonText: "OK",
       });
@@ -211,12 +224,39 @@ const Results = () => {
     }));
   };
 
+  const handleStatus = async (e) => {
+    const selectedStatus = e.target.value;
+    setStatus(selectedStatus);
+
+    setLoading(true);
+    try {
+      const response = await getMatchesCategory({
+        category_id: id,
+        status: selectedStatus,
+      });
+      setMatches(response);
+    } catch (error) {
+      console.error(error);
+      setLoading(true);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleConvertDate = (date) => {
+    const utcDate = new Date(date);
+    return utcDate.toLocaleString();
+  };
+
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
       try {
-        const matchesRes = await getMatchesCategory({ category_id: id });
-        setMatches(matchesRes);
+        const response = await getMatchesCategory({
+          category_id: id,
+          status: status,
+        });
+        setMatches(response);
       } catch (error) {
         console.error(error);
         setLoading(true);
@@ -233,9 +273,24 @@ const Results = () => {
       <SubHeader>
         <h2 className="text-xl font-bold mb-4">Manage Results for {name}</h2>
 
-        <button className="btn" onClick={() => navigate(-1)}>
-          Back
-        </button>
+        <div className="flex items-center gap-3">
+          <label className="select border border-gray-300">
+            <span className="label">Status</span>
+            <select
+              name="status"
+              value={status}
+              onChange={handleStatus}
+              required
+            >
+              <option value="Not Started">Not Started</option>
+              <option value="In Progress">In Progress</option>
+              <option value="Finished">Finished</option>
+            </select>
+          </label>
+          <button className="btn" onClick={() => navigate(-1)}>
+            Back
+          </button>
+        </div>
       </SubHeader>
 
       <dialog ref={modalRef} className="modal modal-bottom sm:modal-middle">
@@ -269,6 +324,7 @@ const Results = () => {
                     alt=""
                   />
                 )}
+                <p>{teams.teamAName}</p>
                 <input
                   type="number"
                   className="border border-gray-300 text-center w-1/2 text-xl py-2 rounded-lg"
@@ -290,6 +346,7 @@ const Results = () => {
                     alt=""
                   />
                 )}
+                <p>{teams.teamBName}</p>
                 <input
                   type="number"
                   className="border border-gray-300 text-center w-1/2 text-xl py-2 rounded-lg"
@@ -339,82 +396,74 @@ const Results = () => {
       </dialog>
 
       {loading ? (
-        <div className="h-full w-full flex items-center justify-center">
-          Loading Results
-        </div>
-      ) : (
+        <Loader2 />
+      ) : matches?.length > 0 ? (
         <div className="grid md:grid-cols-2 gap-5 relative">
-          {matches?.length > 0 ? (
-            matches.map((match) => (
-              <div
-                key={match.id}
-                className="flex flex-col items-center justify-center gap-5 bg-darkBlue rounded-lg shadow-md p-5 relative"
+          {matches.map((match) => (
+            <div
+              key={match.id}
+              className="flex flex-col items-center justify-center gap-5 bg-darkBlue rounded-lg shadow-md p-5 relative"
+            >
+              <button
+                className="absolute right-0 top-0 text-white p-5 text-xl cursor-pointer"
+                onClick={() => handleEdit(match)}
               >
-                <button
-                  className="absolute right-0 top-0 text-white p-5 text-xl cursor-pointer"
-                  onClick={() => handleEdit(match)}
-                >
-                  <i className="fa-solid fa-pen-to-square"></i>
-                </button>
-                <h1 className="text-white">Match Today</h1>
-                <div className="flex gap-3 lg:gap-10 items-center">
-                  <div className="flex flex-col items-center justify-center gap-3">
-                    {match?.team_a?.school?.logo_url && (
-                      <img
-                        src={
-                          match?.team_a?.school?.logo_url?.trim()
-                            ? `${url}${match.team_a.school.logo_url}`
-                            : "https://img.freepik.com/free-vector/illustration-gallery-icon_53876-27002.jpg"
-                        }
-                        alt="Team A Logo"
-                        className="h-16 w-16 rounded-full"
-                      />
-                    )}
+                <i className="fa-solid fa-pen-to-square"></i>
+              </button>
+              <h1 className="text-white">
+                {handleConvertDate(match.scheduled_datetime)}
+              </h1>
+              <div className="flex gap-3 lg:gap-10 items-center">
+                <div className="flex flex-col items-center justify-center gap-3">
+                  {match?.team_a?.school?.logo_url && (
+                    <img
+                      src={
+                        match?.team_a?.school?.logo_url?.trim()
+                          ? `${url}${match.team_a.school.logo_url}`
+                          : "https://img.freepik.com/free-vector/illustration-gallery-icon_53876-27002.jpg"
+                      }
+                      alt="Team A Logo"
+                      className="h-16 w-16 rounded-full"
+                    />
+                  )}
 
-                    <p className="text-white text-center">
-                      {match.team_a.name}
-                    </p>
-                    <h2 className="text-white font-bold text-2xl">
-                      {match.status === "Not Started"
-                        ? 0
-                        : match?.score?.team_a_score ?? 0}
-                    </h2>
-                  </div>
-                  <div className="flex flex-col items-center justify-center gap-10">
-                    <h2 className="text-2xl font-semibold text-white">VS</h2>
-                    <h1 className="text-white">{match.status}</h1>
-                  </div>
-                  <div className="flex flex-col items-center justify-center gap-3">
-                    {match?.team_b?.school?.logo_url && (
-                      <img
-                        src={
-                          match?.team_b?.school?.logo_url?.trim()
-                            ? `${url}${match.team_b.school.logo_url}`
-                            : "https://img.freepik.com/free-vector/illustration-gallery-icon_53876-27002.jpg"
-                        }
-                        alt="Team A Logo"
-                        className="h-16 w-16 rounded-full"
-                      />
-                    )}
+                  <p className="text-white text-center">{match.team_a.name}</p>
+                  <h2 className="text-white font-bold text-2xl">
+                    {match.status === "Not Started"
+                      ? 0
+                      : match?.score?.team_a_score ?? 0}
+                  </h2>
+                </div>
+                <div className="flex flex-col items-center justify-center gap-10">
+                  <h2 className="text-2xl font-semibold text-white">VS</h2>
+                  <h1 className="text-white">{match.status}</h1>
+                </div>
+                <div className="flex flex-col items-center justify-center gap-3">
+                  {match?.team_b?.school?.logo_url && (
+                    <img
+                      src={
+                        match?.team_b?.school?.logo_url?.trim()
+                          ? `${url}${match.team_b.school.logo_url}`
+                          : "https://img.freepik.com/free-vector/illustration-gallery-icon_53876-27002.jpg"
+                      }
+                      alt="Team A Logo"
+                      className="h-16 w-16 rounded-full"
+                    />
+                  )}
 
-                    <p className="text-white text-center">
-                      {match.team_b.name}
-                    </p>
-                    <h2 className="text-white font-bold text-2xl">
-                      {match.status === "Not Started"
-                        ? 0
-                        : match?.score?.team_b_score ?? 0}
-                    </h2>
-                  </div>
+                  <p className="text-white text-center">{match.team_b.name}</p>
+                  <h2 className="text-white font-bold text-2xl">
+                    {match.status === "Not Started"
+                      ? 0
+                      : match?.score?.team_b_score ?? 0}
+                  </h2>
                 </div>
               </div>
-            ))
-          ) : (
-            <div className="h-full w-full flex items-center justify-center absolute left-0 top-0">
-              No Match Results yet for {name}
             </div>
-          )}
+          ))}
         </div>
+      ) : (
+        <Empty message={"No Match Results for"} categoryName={name} />
       )}
     </AdminSection>
   );

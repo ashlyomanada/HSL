@@ -1,5 +1,6 @@
 import React from "react";
 import { format } from "date-fns";
+import Loader from "../loader/Loader";
 
 const LeaguesTable = ({ leagues, loading, handleEdit, handleDelete }) => {
   return (
@@ -21,7 +22,7 @@ const LeaguesTable = ({ leagues, loading, handleEdit, handleDelete }) => {
           {loading ? (
             <tr>
               <td colSpan="6" className="text-center">
-                Loading...
+                <Loader />
               </td>
             </tr>
           ) : leagues?.length > 0 ? (

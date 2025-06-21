@@ -7,6 +7,7 @@ import getDay from "date-fns/getDay";
 import enUS from "date-fns/locale/en-US";
 import "react-big-calendar/lib/css/react-big-calendar.css";
 import { getMatches } from "@/services/matches";
+import Loader2 from "./loader/Loader2";
 
 const locales = {
   "en-US": enUS,
@@ -24,28 +25,37 @@ const MatchCalendar = () => {
   const [matches, setMatches] = useState([]);
   const [selectedMatch, setSelectedMatch] = useState(null);
   const modalRef = useRef(null);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
-      const response = await getMatches();
-      const transformedMatches = response.map((match) => {
-        const start = new Date(match.scheduled_datetime);
-        const end = new Date(start.getTime() + 2 * 60 * 60 * 1000); // +2 hours
+      setLoading(true);
+      try {
+        const response = await getMatches();
+        const transformedMatches = response.map((match) => {
+          const start = new Date(match.scheduled_datetime);
+          const end = new Date(start.getTime() + 2 * 60 * 60 * 1000); // +2 hours
 
-        return {
-          id: match.id,
-          title: `${match.team_a.name} vs ${match.team_b.name}`,
-          start,
-          end,
-          venue: match.venue,
-          status: match.status,
-          category: match.league?.category?.category || "No category", // <-- here
-          teamA: match.team_a,
-          teamB: match.team_b,
-        };
-      });
+          return {
+            id: match.id,
+            title: `${match.team_a.name} vs ${match.team_b.name}`,
+            start,
+            end,
+            venue: match.venue,
+            status: match.status,
+            category: match.league?.category?.category || "No category", // <-- here
+            teamA: match.team_a,
+            teamB: match.team_b,
+          };
+        });
 
-      setMatches(transformedMatches);
+        setMatches(transformedMatches);
+      } catch (error) {
+        console.error("Error Fetching data:", error);
+        setLoading(true);
+      } finally {
+        setLoading(false);
+      }
     };
 
     fetchData();
@@ -70,18 +80,22 @@ const MatchCalendar = () => {
 
   return (
     <div className="p-4 bg-white shadow-xl rounded-lg">
-      <Calendar
-        localizer={localizer}
-        events={matches}
-        startAccessor="start"
-        endAccessor="end"
-        onSelectEvent={handleSelectEvent}
-        style={{ height: 450 }}
-        views={["month", "week", "day", "agenda"]}
-        defaultView="month"
-        toolbar={true}
-        popup
-      />
+      {loading ? (
+        <Loader2 />
+      ) : (
+        <Calendar
+          localizer={localizer}
+          events={matches}
+          startAccessor="start"
+          endAccessor="end"
+          onSelectEvent={handleSelectEvent}
+          style={{ height: 450 }}
+          views={["month", "week", "day", "agenda"]}
+          defaultView="month"
+          toolbar={true}
+          popup
+        />
+      )}
 
       {/* Modal */}
       <dialog ref={modalRef} className="modal modal-bottom sm:modal-middle">

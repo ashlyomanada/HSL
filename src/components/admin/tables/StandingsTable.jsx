@@ -1,4 +1,5 @@
 import React from "react";
+import Loader from "../loader/Loader";
 
 const StandingsTable = ({ standings, loading }) => {
   const url = import.meta.env.VITE_STORAGE_URL;
@@ -9,7 +10,7 @@ const StandingsTable = ({ standings, loading }) => {
         <thead>
           <tr>
             <th className="text-center">Rank</th>
-            <th className="text-center">League</th>
+            <th className="text-center">Category</th>
             <th className="text-center">Team</th>
             <th className="text-center">Wins</th>
             <th className="text-center">Loses</th>
@@ -23,14 +24,16 @@ const StandingsTable = ({ standings, loading }) => {
           {loading ? (
             <tr>
               <td colSpan="7" className="text-center">
-                Loading...
+                <Loader />
               </td>
             </tr>
           ) : standings?.length > 0 ? (
             standings.map((standing, index) => (
               <tr key={standing.id}>
                 <td className="text-center font-semibold">{index + 1}</td>
-                <td className="text-center">{standing.league.name}</td>
+                <td className="text-center">
+                  {standing?.league?.category?.category}
+                </td>
                 <td>
                   <div className="flex items-center gap-3 pl-12">
                     <div className="avatar">

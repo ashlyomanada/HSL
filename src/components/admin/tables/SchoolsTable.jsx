@@ -1,4 +1,5 @@
 import React from "react";
+import Loader from "../loader/Loader";
 
 const SchoolsTable = ({ schools, handleEdit, handleDelete, loading }) => {
   return (
@@ -17,7 +18,7 @@ const SchoolsTable = ({ schools, handleEdit, handleDelete, loading }) => {
           {loading ? (
             <tr>
               <td colSpan="4" className="text-center py-5">
-                Loading...
+                <Loader />
               </td>
             </tr>
           ) : schools?.length > 0 ? (

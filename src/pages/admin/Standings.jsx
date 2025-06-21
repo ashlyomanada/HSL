@@ -1,16 +1,19 @@
 import AdminSection from "@/components/admin/AdminSection";
+import SubHeader from "@/components/admin/SubHeader";
 import StandingsTable from "@/components/admin/tables/StandingsTable";
+import { getCategories } from "@/services/categories";
 import { getStandings, getStandingsCategory } from "@/services/standings";
 import React, { useEffect, useState } from "react";
 
 const Standings = () => {
   const [standings, setStandings] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [category, setCategory] = useState("Basketball");
+  const [category, setCategory] = useState([]);
+  const [selectedCategoryId, setSelectedCategoryId] = useState(1);
 
   const handleCategory = async (e) => {
     const selectedCategory = e.target.value;
-    setCategory(selectedCategory);
+    setSelectedCategoryId(selectedCategory);
     setLoading(true);
 
     try {
@@ -25,13 +28,16 @@ const Standings = () => {
       setLoading(false);
     }
   };
+
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
       try {
-        const response = await getStandingsCategory(
-          { category: category } || []
-        );
+        const categResp = await getCategories();
+        const response = await getStandingsCategory({
+          category: selectedCategoryId,
+        });
+        setCategory(categResp);
         setStandings(response);
       } catch (error) {
         console.error(error);
@@ -45,20 +51,26 @@ const Standings = () => {
   }, []);
   return (
     <AdminSection>
-      <div className="flex justify-between">
-        <h2 className="text-xl font-bold mb-4">Team Standings</h2>
+      <SubHeader>
+        <h2 className="text-xl md:text-2xl font-bold">Team Standings</h2>
 
         <div className="flex">
           <select
             className="select border border-gray-300"
+            value={selectedCategoryId}
             onChange={handleCategory}
+            required
           >
-            <option value="Basketball">Basketball</option>
-            <option value="Volleyball">Volleyball</option>
-            <option value="Badminton">Badminton</option>
+            <option value="">-- Choose Category --</option>
+            {category?.length > 0 &&
+              category.map((categ) => (
+                <option key={categ.id} value={categ.id}>
+                  {categ.category}
+                </option>
+              ))}
           </select>
         </div>
-      </div>
+      </SubHeader>
 
       <StandingsTable standings={standings} loading={loading} />
     </AdminSection>

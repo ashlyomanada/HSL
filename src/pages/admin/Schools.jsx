@@ -122,7 +122,7 @@ const Schools = () => {
   return (
     <AdminSection>
       <SubHeader>
-        <h2 className="text-xl font-bold">Manage Schools</h2>
+        <h2 className="text-xl md:text-2xl font-bold">Manage Schools</h2>
         <button
           className="btn"
           onClick={() => document.getElementById("my_modal_5").showModal()}
