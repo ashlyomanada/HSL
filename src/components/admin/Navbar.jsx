@@ -11,9 +11,9 @@ const navItems = [
   { to: "/admin/standings", icon: "fa-medal", label: "Standings" },
   { to: "/admin/leagues", icon: "fa-award", label: "Leagues" },
   { to: "/admin/categories", icon: "fa-layer-group", label: "Categories" },
-  { to: "/admin/Schools", icon: "fa-school", label: "Schools" },
+  { to: "/admin/schools", icon: "fa-school", label: "Schools" },
+  { to: "/admin/photos", icon: "fa-images", label: "Photos" },
 ];
-
 const NavItem = ({ to, icon, label, isActive, toggle, handleToggle }) => (
   <li
     className={`hover:bg-blue-900 transition-all duration-300 py-3 
@@ -27,8 +27,8 @@ const NavItem = ({ to, icon, label, isActive, toggle, handleToggle }) => (
       }`}
       onClick={handleToggle}
     >
-      <i className={`fa-solid ${icon}`}></i>
-      {toggle && label}
+      <i className={`fa-solid ${icon} ${toggle ? "w-5" : "w-0"}`}></i>
+      <span>{toggle && label}</span>
     </Link>
   </li>
 );
@@ -44,17 +44,19 @@ const Navbar = () => {
     <>
       {/* Sidebar large size*/}
       <nav
-        className={`hidden fixed left-0 top-0 h-screen transition-all duration-300 bg-darkBlue text-white lg:flex flex-col gap-10 p-5 ${
+        className={`hidden fixed left-0 top-0 h-screen overflow-y-auto transition-all duration-300 bg-darkBlue text-white lg:flex flex-col gap-10 p-5 ${
           toggle ? "w-[20%]" : "w-[6%]"
         }`}
       >
         <div className="flex justify-start items-center gap-3 px-2.5">
           <i className="fa-solid fa-user-tie text-xl"></i>
-          {toggle && (
-            <h1 className="px-2 lg:text-xl xl:text-2xl font-semibold delay-1000">
-              HSL Admin
-            </h1>
-          )}
+          <h1
+            className={`px-2 lg:text-xl xl:text-2xl font-semibold transition-all ease-in-out ${
+              toggle ? "opacity-100" : "opacity-0"
+            }`}
+          >
+            HSL Admin
+          </h1>
         </div>
 
         <ul className="flex flex-col gap-1">

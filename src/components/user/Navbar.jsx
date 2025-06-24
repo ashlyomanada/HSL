@@ -20,7 +20,7 @@ const Navbar = () => {
           </li>
         </ul>
 
-        <div className="">Logo</div>
+        <div className="">HSL</div>
 
         <ul className="flex gap-10">
           <li>

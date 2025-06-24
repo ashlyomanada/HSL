@@ -1,6 +1,8 @@
 import AdminSection from "@/components/admin/AdminSection";
+import CardResult from "@/components/admin/cards/CardResult";
 import Empty from "@/components/admin/Empty";
 import Loader2 from "@/components/admin/loader/Loader2";
+import ResultsModal from "@/components/admin/modals/ResultsModal";
 import SubHeader from "@/components/admin/SubHeader";
 import {
   updateMatches,
@@ -133,7 +135,10 @@ const Results = () => {
         await createStandings(updatedStandingB);
       }
 
-      const response = await getMatchesCategory({ category_id: id });
+      const response = await getMatchesCategory({
+        category_id: parseInt(id),
+        status: "Not Started",
+      });
       setMatches(response);
 
       handleCloseModal(e);
@@ -293,173 +298,32 @@ const Results = () => {
         </div>
       </SubHeader>
 
-      <dialog ref={modalRef} className="modal modal-bottom sm:modal-middle">
-        <div className="modal-box">
-          <form onSubmit={handleSubmit} className="flex flex-col gap-2">
-            <input
-              type="hidden"
-              name="match_id"
-              value={form.match_id}
-              onChange={handleChange}
-            />
-            <input
-              type="hidden"
-              name="team_a_id"
-              value={form.team_a_id}
-              onChange={handleChange}
-            />
-            <input
-              type="hidden"
-              name="team_b_id"
-              value={form.team_b_id}
-              onChange={handleChange}
-            />
-
-            <div className="flex justify-center items-center">
-              <div className="flex flex-col items-center justify-center gap-3">
-                {logoUrlA && (
-                  <img
-                    className="h-24 w-24 rounded-full"
-                    src={logoUrlA}
-                    alt=""
-                  />
-                )}
-                <p>{teams.teamAName}</p>
-                <input
-                  type="number"
-                  className="border border-gray-300 text-center w-1/2 text-xl py-2 rounded-lg"
-                  name="team_a_score"
-                  value={form.team_a_score}
-                  onChange={handleChange}
-                  min="0"
-                  required
-                />
-              </div>
-              <div className="flex flex-col items-center justify-center">
-                <h1 className="font-bold text-3xl">VS</h1>
-              </div>
-              <div className="flex flex-col items-center justify-center gap-3">
-                {logoUrlB && (
-                  <img
-                    className="h-24 w-24 rounded-full"
-                    src={logoUrlB}
-                    alt=""
-                  />
-                )}
-                <p>{teams.teamBName}</p>
-                <input
-                  type="number"
-                  className="border border-gray-300 text-center w-1/2 text-xl py-2 rounded-lg"
-                  name="team_b_score"
-                  value={form.team_b_score}
-                  onChange={handleChange}
-                  min="0"
-                  required
-                />
-              </div>
-            </div>
-
-            <label className="select border border-gray-300 w-full">
-              <span className="label">Status</span>
-              <select
-                name="status"
-                value={matchStatus.status}
-                onChange={(e) => {
-                  setMatchStatus((prev) => ({
-                    ...prev,
-                    status: e.target.value,
-                  }));
-                }}
-              >
-                <option value="Not Started">Not Started</option>
-                <option value="In Progress">In Progress</option>
-                <option value="Finished">Finished</option>
-              </select>
-            </label>
-
-            <div className="flex justify-center items-center gap-3">
-              <button
-                type="submit"
-                className={`btn btn-success btn-medium ${
-                  submitLoading ? "text-black" : "text-white"
-                }`}
-                disabled={submitLoading}
-              >
-                {submitLoading ? "Updating... Score" : "Update Score"}
-              </button>
-              <button className="btn" onClick={handleCloseModal}>
-                Close
-              </button>
-            </div>
-          </form>
-        </div>
-      </dialog>
+      <ResultsModal
+        ref={modalRef}
+        handleSubmit={handleSubmit}
+        handleChange={handleChange}
+        form={form}
+        teams={teams}
+        logoUrlA={logoUrlA}
+        logoUrlB={logoUrlB}
+        matchStatus={matchStatus}
+        setMatchStatus={setMatchStatus}
+        submitLoading={submitLoading}
+        handleCloseModal={handleCloseModal}
+      />
 
       {loading ? (
         <Loader2 />
       ) : matches?.length > 0 ? (
         <div className="grid md:grid-cols-2 gap-5 relative">
           {matches.map((match) => (
-            <div
+            <CardResult
               key={match.id}
-              className="flex flex-col items-center justify-center gap-5 bg-darkBlue rounded-lg shadow-md p-5 relative"
-            >
-              <button
-                className="absolute right-0 top-0 text-white p-5 text-xl cursor-pointer"
-                onClick={() => handleEdit(match)}
-              >
-                <i className="fa-solid fa-pen-to-square"></i>
-              </button>
-              <h1 className="text-white">
-                {handleConvertDate(match.scheduled_datetime)}
-              </h1>
-              <div className="flex gap-3 lg:gap-10 items-center">
-                <div className="flex flex-col items-center justify-center gap-3">
-                  {match?.team_a?.school?.logo_url && (
-                    <img
-                      src={
-                        match?.team_a?.school?.logo_url?.trim()
-                          ? `${url}${match.team_a.school.logo_url}`
-                          : "https://img.freepik.com/free-vector/illustration-gallery-icon_53876-27002.jpg"
-                      }
-                      alt="Team A Logo"
-                      className="h-16 w-16 rounded-full"
-                    />
-                  )}
-
-                  <p className="text-white text-center">{match.team_a.name}</p>
-                  <h2 className="text-white font-bold text-2xl">
-                    {match.status === "Not Started"
-                      ? 0
-                      : match?.score?.team_a_score ?? 0}
-                  </h2>
-                </div>
-                <div className="flex flex-col items-center justify-center gap-10">
-                  <h2 className="text-2xl font-semibold text-white">VS</h2>
-                  <h1 className="text-white">{match.status}</h1>
-                </div>
-                <div className="flex flex-col items-center justify-center gap-3">
-                  {match?.team_b?.school?.logo_url && (
-                    <img
-                      src={
-                        match?.team_b?.school?.logo_url?.trim()
-                          ? `${url}${match.team_b.school.logo_url}`
-                          : "https://img.freepik.com/free-vector/illustration-gallery-icon_53876-27002.jpg"
-                      }
-                      alt="Team A Logo"
-                      className="h-16 w-16 rounded-full"
-                    />
-                  )}
-
-                  <p className="text-white text-center">{match.team_b.name}</p>
-                  <h2 className="text-white font-bold text-2xl">
-                    {match.status === "Not Started"
-                      ? 0
-                      : match?.score?.team_b_score ?? 0}
-                  </h2>
-                </div>
-              </div>
-            </div>
+              match={match}
+              handleEdit={handleEdit}
+              handleConvertDate={handleConvertDate}
+              url={url}
+            />
           ))}
         </div>
       ) : (

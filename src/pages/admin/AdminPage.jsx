@@ -13,6 +13,8 @@ import Leagues from "./Leagues";
 import Matches from "./Matches";
 import MatchDetails from "@/layouts/MatchDetails";
 import Categories from "./Categories";
+import Photos from "./Photos";
+import PhotosDetails from "@/layouts/PhotosDetails";
 
 const AdminPage = () => {
   const { toggle } = useToggle();
@@ -37,6 +39,8 @@ const AdminPage = () => {
             <Route path="/admin/leagues" element={<Leagues />} />
             <Route path="/admin/matches/:id/:name" element={<MatchDetails />} />
             <Route path="/admin/categories" element={<Categories />} />
+            <Route path="/admin/photos/" element={<Photos />} />
+            <Route path="/admin/photos/:id/:name" element={<PhotosDetails />} />
           </Routes>
         </section>
       </main>

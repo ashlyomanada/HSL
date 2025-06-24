@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import AdminSection from "@/components/admin/AdminSection";
 import {
   createSchool,
@@ -9,6 +9,7 @@ import {
 import SchoolsTable from "@/components/admin/tables/SchoolsTable";
 import SubHeader from "@/components/admin/SubHeader";
 import Swal from "sweetalert2";
+import SchoolModal from "@/components/admin/modals/SchoolModal";
 
 const Schools = () => {
   const baseUrl = import.meta.env.VITE_STORAGE_URL;
@@ -17,6 +18,7 @@ const Schools = () => {
   const [form, setForm] = useState({ name: "", address: "", logo_url: "" });
   const [previewUrl, setPreviewUrl] = useState(null);
   const [loading, setLoading] = useState(false);
+  const schoolModalRef = useRef();
 
   const handleFile = (e) => {
     const file = e.target.files[0];
@@ -47,7 +49,7 @@ const Schools = () => {
         });
       }
 
-      document.getElementById("my_modal_5").close();
+      schoolModalRef.current.close();
       setEditingId(null);
       setForm({ name: "", address: "", logo_url: "" });
       setPreviewUrl(null);
@@ -60,7 +62,7 @@ const Schools = () => {
   };
 
   const handleEdit = (school) => {
-    document.getElementById("my_modal_5").showModal();
+    schoolModalRef.current.showModal();
     setEditingId(school.id);
     setForm({
       name: school.name,
@@ -125,92 +127,25 @@ const Schools = () => {
         <h2 className="text-xl md:text-2xl font-bold">Manage Schools</h2>
         <button
           className="btn"
-          onClick={() => document.getElementById("my_modal_5").showModal()}
+          onClick={() => schoolModalRef.current.showModal()}
         >
           Add School
         </button>
       </SubHeader>
 
-      <dialog id="my_modal_5" className="modal modal-bottom sm:modal-middle">
-        <div className="modal-box flex flex-col gap-5">
-          <h3 className="font-bold text-lg">
-            {editingId ? "Edit School" : "Add School"}
-          </h3>
-          <form
-            onSubmit={handleSubmit}
-            className="flex flex-col items-stretch gap-3"
-            encType="multipart/form-data"
-          >
-            {/* Name Input */}
-            <label className="floating-label">
-              <input
-                type="text"
-                placeholder="Enter School name"
-                className="input input-md border border-gray-300 w-full"
-                value={form.name}
-                onChange={(e) =>
-                  setForm((prev) => ({ ...prev, name: e.target.value }))
-                }
-              />
-              <span>School name</span>
-            </label>
+      <SchoolModal
+        ref={schoolModalRef}
+        editingId={editingId}
+        setEditingId={setEditingId}
+        form={form}
+        setForm={setForm}
+        previewUrl={previewUrl}
+        setPreviewUrl={setPreviewUrl}
+        baseUrl={baseUrl}
+        handleFile={handleFile}
+        handleSubmit={handleSubmit}
+      />
 
-            {/* Address Input */}
-            <label className="floating-label">
-              <input
-                type="text"
-                placeholder="Enter School Address"
-                className="input input-md border border-gray-300 w-full"
-                value={form.address}
-                onChange={(e) =>
-                  setForm((prev) => ({ ...prev, address: e.target.value }))
-                }
-              />
-              <span>School Address</span>
-            </label>
-
-            {/* Image Preview */}
-            {(previewUrl ||
-              (editingId && typeof form.logo_url === "string")) && (
-              <div>
-                <img
-                  className="h-20 object-contain"
-                  src={previewUrl ? previewUrl : `${baseUrl}/${form.logo_url}`}
-                  alt="Logo Preview"
-                />
-              </div>
-            )}
-
-            {/* File Upload */}
-            <fieldset className="fieldset">
-              <legend className="fieldset-legend">Choose logo</legend>
-              <input type="file" className="file-input" onChange={handleFile} />
-              <label className="label">Max size 2MB</label>
-            </fieldset>
-
-            {/* Buttons */}
-            <div className="flex justify-end gap-3">
-              <button
-                type="submit"
-                className="btn btn-success btn-medium text-white"
-              >
-                Submit
-              </button>
-              <div
-                className="btn btn-medium"
-                onClick={() => {
-                  document.getElementById("my_modal_5").close();
-                  setEditingId(null);
-                  setForm({ name: "", address: "", logo_url: "" });
-                  setPreviewUrl(null);
-                }}
-              >
-                Close
-              </div>
-            </div>
-          </form>
-        </div>
-      </dialog>
       <SchoolsTable
         schools={schools}
         handleEdit={handleEdit}

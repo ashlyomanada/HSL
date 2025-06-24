@@ -16,6 +16,7 @@ import {
 } from "@/services/matches";
 import Swal from "sweetalert2";
 import { useNavigate, useParams } from "react-router-dom";
+import MatchesModal from "@/components/admin/modals/MatchesModal";
 
 const MatchDetails = () => {
   const [matches, setMatches] = useState([]);
@@ -29,7 +30,6 @@ const MatchDetails = () => {
   const { id, name } = useParams();
   const navigate = useNavigate();
 
-  // Pagination
   const [currentPage, setCurrentPage] = useState(1);
   const [categoriesPerPage] = useState(5);
 
@@ -48,21 +48,11 @@ const MatchDetails = () => {
     try {
       if (editingId) {
         await updateMatches(editingId, form);
-        Swal.fire({
-          title: "Success!",
-          text: "Match updated successfully.",
-          icon: "success",
-          confirmButtonText: "OK",
-        });
+        Swal.fire("Success!", "Match updated successfully.", "success");
       } else {
         const response = await createMatches(form);
-        Swal.fire({
-          title: "Success!",
-          text: "Match created successfully.",
-          icon: "success",
-          confirmButtonText: "OK",
-        });
-        setMatches(response);
+        Swal.fire("Success!", "Match created successfully.", "success");
+        setMatches(Array.isArray(response) ? response : []);
       }
 
       modalRef.current.close();
@@ -70,9 +60,9 @@ const MatchDetails = () => {
         category_id: parseInt(id),
         status: "Not Started",
       });
-      setMatches(matchesRes);
+      setMatches(Array.isArray(matchesRes) ? matchesRes : []);
       setEditingId(null);
-      setCurrentPage(1); // Reset pagination
+      setCurrentPage(1);
     } catch (error) {
       console.error(error);
     }
@@ -124,13 +114,12 @@ const MatchDetails = () => {
             category_id: parseInt(id),
           });
 
-          setMatches(matchesRes);
+          setMatches(Array.isArray(matchesRes) ? matchesRes : []);
           setLeagues(leagueRes);
           setTeams(teamRes);
         }
       } catch (error) {
         console.error("Error Fetching data:", error);
-        setLoading(true);
       } finally {
         setLoading(false);
       }
@@ -177,13 +166,7 @@ const MatchDetails = () => {
         await deleteMatches(id);
         const updatedMatches = matches.filter((match) => match.id !== id);
         setMatches(updatedMatches);
-        Swal.fire({
-          title: "Deleted!",
-          text: "The Match has been deleted.",
-          icon: "success",
-          timer: 1500,
-          showConfirmButton: false,
-        });
+        Swal.fire("Deleted!", "The Match has been deleted.", "success");
 
         const totalPages = Math.ceil(updatedMatches.length / categoriesPerPage);
         if (currentPage > totalPages) setCurrentPage(totalPages);
@@ -197,10 +180,11 @@ const MatchDetails = () => {
     (team) => team.id !== parseInt(form.team_a_id)
   );
 
-  // Pagination logic
   const indexOfLastMatch = currentPage * categoriesPerPage;
   const indexOfFirstMatch = indexOfLastMatch - categoriesPerPage;
-  const currentMatches = matches.slice(indexOfFirstMatch, indexOfLastMatch);
+  const currentMatches = Array.isArray(matches)
+    ? matches.slice(indexOfFirstMatch, indexOfLastMatch)
+    : [];
   const totalPages = Math.ceil(matches.length / categoriesPerPage);
 
   return (
@@ -217,125 +201,19 @@ const MatchDetails = () => {
         </div>
       </SubHeader>
 
-      {/* Modal */}
-      <dialog ref={modalRef} className="modal modal-bottom sm:modal-middle">
-        <div className="modal-box">
-          <form className="flex flex-col gap-2" onSubmit={handleSubmit}>
-            {/* League Select */}
-            <label className="select border border-gray-300 w-full">
-              <span className="label">Sport</span>
-              <select
-                name="league_id"
-                value={form.league_id}
-                onChange={handleFormChange}
-                required
-              >
-                <option value="">-- Choose Sport --</option>
-                {leagues && (
-                  <option value={leagues.id}>
-                    {leagues.category?.category ||
-                      "No Teams yet for this Sport"}
-                  </option>
-                )}
-              </select>
-            </label>
+      <MatchesModal
+        ref={modalRef}
+        handleSubmit={handleSubmit}
+        form={form}
+        leagues={leagues}
+        handleFormChange={handleFormChange}
+        filteredTeamsB={filteredTeamsB}
+        startDate={startDate}
+        endDate={endDate}
+        handleModalClose={handleModalClose}
+        teams={teams}
+      />
 
-            {/* Team A & Team B */}
-            <div className="flex gap-5 items-center">
-              <label className="select border border-gray-300 w-full">
-                <span className="label">Team A</span>
-                <select
-                  required
-                  name="team_a_id"
-                  value={form.team_a_id}
-                  onChange={handleFormChange}
-                >
-                  <option value="">-- Choose Team A --</option>
-                  {teams.map((team) => (
-                    <option key={team.id} value={team.id}>
-                      {team.name}
-                    </option>
-                  ))}
-                </select>
-              </label>
-
-              <h1>VS</h1>
-
-              <label className="select border border-gray-300 w-full">
-                <span className="label">Team B</span>
-                <select
-                  required
-                  name="team_b_id"
-                  value={form.team_b_id}
-                  onChange={handleFormChange}
-                >
-                  <option value="">-- Choose Team B --</option>
-                  {filteredTeamsB.map((team) => (
-                    <option key={team.id} value={team.id}>
-                      {team.name}
-                    </option>
-                  ))}
-                </select>
-              </label>
-            </div>
-
-            {/* Schedule Date */}
-            <label className="input border border-gray-300 w-full">
-              <span className="label">Schedule</span>
-              <input
-                required
-                type="datetime-local"
-                name="scheduled_datetime"
-                value={form.scheduled_datetime}
-                onChange={handleFormChange}
-                min={startDate}
-                max={endDate}
-              />
-            </label>
-
-            {/* Venue */}
-            <label className="input border border-gray-300 w-full">
-              <span className="label">Venue</span>
-              <input
-                required
-                type="text"
-                name="venue"
-                value={form.venue}
-                placeholder="Enter Venue"
-                onChange={handleFormChange}
-              />
-            </label>
-
-            {/* Status */}
-            <label className="select border border-gray-300 w-full">
-              <span className="label">Status</span>
-              <select
-                name="status"
-                value={form.status}
-                onChange={handleFormChange}
-              >
-                <option value="Not Started">Not Started</option>
-                <option value="In Progress">In Progress</option>
-                <option value="Finished">Finished</option>
-              </select>
-            </label>
-
-            <div className="flex justify-end gap-3">
-              <button
-                type="submit"
-                className="btn btn-success btn-medium text-white"
-              >
-                Submit
-              </button>
-              <div className="btn btn-medium" onClick={handleModalClose}>
-                Close
-              </div>
-            </div>
-          </form>
-        </div>
-      </dialog>
-
-      {/* Match Table */}
       <ScheduleTable
         matches={currentMatches}
         handleEdit={handleEdit}
@@ -343,7 +221,6 @@ const MatchDetails = () => {
         loading={loading}
       />
 
-      {/* Pagination */}
       {totalPages > 1 && (
         <div className="flex justify-center mt-4 gap-2 p-4">
           {Array.from({ length: totalPages }, (_, i) => (

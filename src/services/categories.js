@@ -30,13 +30,14 @@ export const createCategories = async (form) => {
 export const updateCategories = async (id, form) => {
   const formData = new FormData();
   formData.append("category", form.category);
+  formData.append("image_url", form.image_url);
 
-  if (form.image_url instanceof File) {
-    formData.append("image_url", form.image_url);
-  }
+  // if (form.image_url instanceof File) {
+  //   formData.append("image_url", form.image_url);
+  // }
 
   try {
-    const response = await axios.post(`${url}/categories/${id}`, form, {
+    const response = await axios.post(`${url}/categories/${id}`, formData, {
       headers: {
         "Content-Type": "multipart/form-data",
       },
