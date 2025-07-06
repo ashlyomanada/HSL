@@ -5,11 +5,11 @@ import Loader from "../loader/Loader";
 const ScheduleTable = ({ matches, handleEdit, handleDelete, loading }) => {
   const url = import.meta.env.VITE_STORAGE_URL;
   return (
-    <div className="overflow-x-auto bg-white rounded-lg shadow-xl flex flex-col">
+    <div className="overflow-x-auto bg-white text-black rounded-lg shadow-xl flex flex-col">
       <table className="table">
         {/* head */}
         <thead>
-          <tr>
+          <tr className="text-black">
             <th>Team A</th>
             <th className="text-center"></th>
             <th>Team B</th>

@@ -40,7 +40,7 @@ const PhotosModal = forwardRef(
 
             <fieldset className="fieldset">
               <legend className="fieldset-legend">Choose Photo</legend>
-              <input type="file" className="file-input" onChange={handleFile} />
+              <input type="file" className="file-input w-full" onChange={handleFile} />
               <label className="label">Max size 2MB</label>
             </fieldset>
 

@@ -79,7 +79,7 @@ const MatchCalendar = () => {
   };
 
   return (
-    <div className="p-4 bg-white shadow-xl rounded-lg">
+    <div className="p-4 bg-white shadow-xl rounded-lg text-black">
       {loading ? (
         <Loader2 />
       ) : (

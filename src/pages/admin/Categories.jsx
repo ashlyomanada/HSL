@@ -23,6 +23,7 @@ const Categories = () => {
   // Pagination states
   const [currentPage, setCurrentPage] = useState(1);
   const [categoriesPerPage] = useState(5);
+  const [loadedImages, setLoadedImages] = useState([]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -163,6 +164,8 @@ const Categories = () => {
         totalPages={totalPages}
         currentPage={currentPage}
         setCurrentPage={setCurrentPage}
+        loadedImages={loadedImages}
+        setLoadedImages={setLoadedImages}
       />
     </AdminSection>
   );

@@ -1,14 +1,22 @@
 import React from "react";
 import Loader from "../loader/Loader";
+import TableImgLoader from "../loader/TableImgLoader";
 
-const TeamsTable = ({ teams, handleEdit, handleDelete, loading }) => {
+const TeamsTable = ({
+  teams,
+  handleEdit,
+  handleDelete,
+  loading,
+  loadedImages,
+  setLoadedImages,
+}) => {
   const url = import.meta.env.VITE_STORAGE_URL;
 
   return (
-    <div className="overflow-x-auto bg-white rounded-lg shadow-xl">
+    <div className="overflow-x-auto bg-white rounded-lg shadow-xl text-black">
       <table className="table">
         <thead>
-          <tr>
+          <tr className="text-black">
             <th>Team</th>
             <th>School</th>
             <th className="text-center">Category</th>
@@ -33,9 +41,20 @@ const TeamsTable = ({ teams, handleEdit, handleDelete, loading }) => {
                     {team.school?.logo_url && (
                       <div className="avatar">
                         <div className="mask mask-squircle h-12 w-12">
+                          {!loadedImages.includes(team.id) && (
+                            <TableImgLoader />
+                          )}
                           <img
+                            className={`transition-opacity duration-500 ease-in-out ${
+                              loadedImages.includes(team.id)
+                                ? "opacity-100"
+                                : "opacity-0 absolute"
+                            }`}
                             src={`${url}/${team.school.logo_url}`}
                             alt={`${team.school.name} Logo`}
+                            onLoad={() =>
+                              setLoadedImages((prev) => [...prev, team.id])
+                            }
                           />
                         </div>
                       </div>

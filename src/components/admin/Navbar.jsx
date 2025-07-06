@@ -16,9 +16,9 @@ const navItems = [
 ];
 const NavItem = ({ to, icon, label, isActive, toggle, handleToggle }) => (
   <li
-    className={`hover:bg-blue-900 transition-all duration-300 py-3 
+    className={`hover:bg-blue-800 transition-all duration-300 py-3 
       ${toggle ? "rounded-lg px-3" : "rounded-full px-5"} 
-      ${isActive ? "bg-blue-900 text-white" : "bg-transparent"}`}
+      ${isActive ? "bg-blue-800 text-white" : "bg-transparent"}`}
   >
     <Link
       to={to}
@@ -44,7 +44,7 @@ const Navbar = () => {
     <>
       {/* Sidebar large size*/}
       <nav
-        className={`hidden fixed left-0 top-0 h-screen overflow-y-auto transition-all duration-300 bg-darkBlue text-white lg:flex flex-col gap-10 p-5 ${
+        className={`hidden fixed left-0 top-0 h-screen overflow-y-auto transition-all duration-300 bg-[darkBlue] text-white lg:flex flex-col gap-10 p-5 ${
           toggle ? "w-[20%]" : "w-[6%]"
         }`}
       >
@@ -75,7 +75,7 @@ const Navbar = () => {
 
       {/* Sidebar large smallsize*/}
       <nav
-        className={`fixed w-screen top-0 h-screen transition-all ease-in-out duration-500 bg-darkBlue text-white flex flex-col gap-10 p-5 z-30 lg:hidden ${
+        className={`fixed w-screen top-0 h-screen transition-all ease-in-out duration-500 bg-[darkBlue] text-white flex flex-col gap-10 p-5 z-30 lg:hidden ${
           toggle ? "left-[-100vw]" : "left-0"
         }`}
       >
@@ -104,7 +104,7 @@ const Navbar = () => {
       {/* Topbar */}
       <div
         className={`fixed top-0 right-0 h-14 bg-white flex items-center px-5 transition-all duration-300 w-full z-20 ${
-          toggle ? "lg:w-[80%]" : "lg:w-[93%]"
+          toggle ? "lg:w-[80%]" : "lg:w-[94%]"
         }`}
       >
         <button

@@ -1,12 +1,16 @@
-import axios from "axios";
-const url = import.meta.env.VITE_API_URL;
+import axiosInstance from "./axiosInstance";
 
+// Get all schools
 export const getSchools = async () => {
-  const response = await axios.get(`${url}/schools`);
-  const data = response.data;
-  return data;
+  try {
+    const response = await axiosInstance.get("/schools");
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching schools:", error);
+  }
 };
 
+// Create a new school
 export const createSchool = async (form) => {
   const formData = new FormData();
   formData.append("name", form.name);
@@ -14,18 +18,18 @@ export const createSchool = async (form) => {
   formData.append("logo_url", form.logo_url);
 
   try {
-    const response = await axios.post(`${url}/schools`, formData, {
+    const response = await axiosInstance.post("/schools", formData, {
       headers: {
         "Content-Type": "multipart/form-data",
       },
     });
-
     return response.data;
   } catch (error) {
-    console.error("Error creating school :", error);
+    console.error("Error creating school:", error);
   }
 };
 
+// Edit a school
 export const editSchool = async (id, form) => {
   const formData = new FormData();
   formData.append("name", form.name);
@@ -36,12 +40,15 @@ export const editSchool = async (id, form) => {
   }
 
   try {
-    const response = await axios.post(`${url}/schools/${id}`, formData, {
-      headers: {
-        "Content-Type": "multipart/form-data",
-      },
-    });
-
+    const response = await axiosInstance.post(
+      `/schools/${id}?_method=PUT`,
+      formData,
+      {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      }
+    );
     return response.data;
   } catch (error) {
     console.error("Error editing school:", error);
@@ -49,9 +56,10 @@ export const editSchool = async (id, form) => {
   }
 };
 
+// Delete a school
 export const deleteSchool = async (id) => {
   try {
-    const response = await axios.delete(`${url}/schools/${id}`);
+    const response = await axiosInstance.delete(`/schools/${id}`);
     return response.data;
   } catch (error) {
     console.error("Error deleting school:", error);

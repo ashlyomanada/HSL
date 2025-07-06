@@ -1,10 +1,16 @@
 import React from "react";
 import Section from "../../components/user/Section";
-import Header from "../../components/shared/Header";
+import Header from "../../components/user/Header";
+import { useLocation } from "react-router-dom";
 
 const NewsPage = () => {
+  const location = useLocation();
   return (
-    <Section>
+    <div
+      className={`lg:min-h-screen ${
+        location.pathname === "/news" ? "py-28" : "py-10"
+      } px-5 xl:px-20 flex flex-col justify-center gap-10 items-center w-full`}
+    >
       <Header>Our News</Header>
 
       <div className="flex flex-col lg:flex-row justify-center w-full gap-5">
@@ -32,7 +38,7 @@ const NewsPage = () => {
           </div>
         </div>
       </div>
-    </Section>
+    </div>
   );
 };
 

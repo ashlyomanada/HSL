@@ -27,6 +27,7 @@ const Teams = () => {
   const modalRef = useRef(null);
   const [categoryType, setCategoryType] = useState(null);
   const [category, setCategory] = useState([]);
+  const [loadedImages, setLoadedImages] = useState([]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -199,6 +200,8 @@ const Teams = () => {
         handleEdit={handleEdit}
         handleDelete={handleDelete}
         loading={loading}
+        loadedImages={loadedImages}
+        setLoadedImages={setLoadedImages}
       />
     </AdminSection>
   );

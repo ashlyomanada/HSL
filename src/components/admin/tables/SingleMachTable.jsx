@@ -6,7 +6,7 @@ const SingleMatchTable = ({ match, loading, handleDelete }) => {
   const url = import.meta.env.VITE_STORAGE_URL;
 
   return (
-    <div className="overflow-x-auto bg-white rounded-lg shadow-xl flex flex-col">
+    <div className="overflow-x-auto bg-white text-black rounded-lg shadow-xl flex flex-col">
       <table className="table">
         {/* head */}
         <thead>

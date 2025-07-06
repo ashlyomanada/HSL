@@ -1,14 +1,20 @@
 import React from "react";
 import Loader from "../loader/Loader";
+import TableImgLoader from "../loader/TableImgLoader";
 
-const StandingsTable = ({ standings, loading }) => {
+const StandingsTable = ({
+  standings,
+  loading,
+  loadedImages,
+  setLoadedImages,
+}) => {
   const url = import.meta.env.VITE_STORAGE_URL;
   return (
-    <div className="overflow-x-auto bg-white rounded-lg shadow-xl flex flex-col">
+    <div className="overflow-x-auto bg-white rounded-lg shadow-xl flex flex-col text-black">
       <table className="table">
         {/* head */}
         <thead>
-          <tr>
+          <tr className="text-black">
             <th className="text-center">Rank</th>
             <th className="text-center">Category</th>
             <th className="text-center">Team</th>
@@ -38,9 +44,20 @@ const StandingsTable = ({ standings, loading }) => {
                   <div className="flex items-center gap-3 pl-12">
                     <div className="avatar">
                       <div className="mask mask-squircle h-12 w-12">
+                        {!loadedImages.includes(standing.id) && (
+                          <TableImgLoader />
+                        )}
                         <img
                           src={`${url}${standing.team.school.logo_url}`}
+                          className={`transition-opacity duration-500 ease-in-out ${
+                            loadedImages.includes(standing.id)
+                              ? "opacity-100"
+                              : "opacity-0 absolute"
+                          }`}
                           alt="Avatar Tailwind CSS Component"
+                          onLoad={() =>
+                            setLoadedImages((prev) => [...prev, standing.id])
+                          }
                         />
                       </div>
                     </div>

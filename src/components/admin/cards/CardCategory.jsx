@@ -34,7 +34,7 @@ const CardCategory = ({ path }) => {
             categories.map((categ) => (
               <Link
                 to={`${path}/${categ.id}/${categ.category}`}
-                className="aspect-video bg-darkBlue rounded-lg text-white flex  gap-5 items-center px-5"
+                className="aspect-video bg-[darkBlue] rounded-lg text-white flex flex-col justify-center  gap-5 items-center px-5"
                 key={categ.id}
               >
                 {!loadedImages.includes(categ.id) && (

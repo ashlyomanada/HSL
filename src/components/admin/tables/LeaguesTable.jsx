@@ -4,11 +4,11 @@ import Loader from "../loader/Loader";
 
 const LeaguesTable = ({ leagues, loading, handleEdit, handleDelete }) => {
   return (
-    <div className="overflow-x-auto bg-white rounded-lg shadow-xl flex flex-col">
+    <div className="overflow-x-auto bg-white text-black rounded-lg shadow-xl flex flex-col">
       <table className="table">
         {/* head */}
         <thead>
-          <tr>
+          <tr className="text-black">
             <th>Name</th>
             <th className="text-center">Season</th>
             <th className="text-center">Category</th>

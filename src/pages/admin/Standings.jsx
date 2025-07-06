@@ -10,6 +10,7 @@ const Standings = () => {
   const [loading, setLoading] = useState(false);
   const [category, setCategory] = useState([]);
   const [selectedCategoryId, setSelectedCategoryId] = useState(1);
+  const [loadedImages, setLoadedImages] = useState([]);
 
   const handleCategory = async (e) => {
     const selectedCategory = e.target.value;
@@ -72,7 +73,12 @@ const Standings = () => {
         </div>
       </SubHeader>
 
-      <StandingsTable standings={standings} loading={loading} />
+      <StandingsTable
+        standings={standings}
+        loading={loading}
+        loadedImages={loadedImages}
+        setLoadedImages={setLoadedImages}
+      />
     </AdminSection>
   );
 };

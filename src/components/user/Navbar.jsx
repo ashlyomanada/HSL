@@ -1,93 +1,161 @@
-import React, { useState } from "react";
+import { logout } from "@/services/auth";
+import React, { useState, useEffect } from "react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import Swal from "sweetalert2";
 
 const Navbar = () => {
   const [toggle, setToggle] = useState(false);
+  const [isBgWhite, setIsBgWhite] = useState(false);
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  const links = [
+    {
+      label: "HOME",
+      path: "/home",
+    },
+    {
+      label: "GAMES",
+      path: "/games",
+    },
+    {
+      label: "ABOUT",
+      path: "/about",
+    },
+    {
+      label: "STANDINGS",
+      path: "/standings",
+    },
+    {
+      label: "BLOGS",
+      path: "/blogs",
+    },
+  ];
+
+  const handleLogout = async () => {
+    const result = await Swal.fire({
+      title: "Are you sure?",
+      text: "You will be logged out.",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Yes, logout!",
+    });
+
+    if (result.isConfirmed) {
+      try {
+        await logout(); // Call API or remove token
+        sessionStorage.clear(); // Optional: clear all session
+        Swal.fire(
+          "Logged out!",
+          "You have been successfully logged out.",
+          "success"
+        );
+        navigate("/");
+      } catch (error) {
+        Swal.fire("Error", "Something went wrong while logging out.", "error");
+      }
+    }
+  };
+
+  useEffect(() => {
+    setIsBgWhite(false);
+    if (location.pathname === "/home") {
+      const handleScroll = () => {
+        const scrollThreshold = 100;
+        if (window.scrollY > scrollThreshold) {
+          setIsBgWhite(true);
+        } else {
+          setIsBgWhite(false);
+        }
+      };
+
+      window.addEventListener("scroll", handleScroll);
+
+      return () => {
+        window.removeEventListener("scroll", handleScroll);
+      };
+    } else {
+      setIsBgWhite(true);
+    }
+  }, [location]);
+
   return (
-    <>
-      <nav className="hidden lg:flex justify-around w-full h-16 items-center fixed text-white bg-[rgba(0,0,0,0.2)] z-20">
-        <ul className="flex gap-10">
-          <li>
-            <a href="">Home</a>
-          </li>
-          <li>
-            <a href="">About</a>
-          </li>
-          <li>
-            <a href="">Sports</a>
-          </li>
-          <li>
-            <a href="">News</a>
-          </li>
-        </ul>
+    <div
+      className={`fixed top-0 w-full z-40 flex justify-between items-center pr-5 xl:pr-20 transition-colors duration-500 ${
+        isBgWhite
+          ? "bg-white text-black shadow-xl"
+          : "bg-transparent text-white"
+      }`}
+    >
+      <div className="flex bg-[#171b21] logo pl-5 xl:pl-20 items-center w-[28%] h-18">
+        <h1 className="text-3xl text-white">HSL</h1>
+      </div>
 
-        <div className="">HSL</div>
-
-        <ul className="flex gap-10">
-          <li>
-            <a href="">Contact</a>
+      <ul className="hidden lg:flex gap-10 items-center">
+        {links.map((link, index) => (
+          <li key={index}>
+            <Link
+              to={link.path}
+              className={`text-sm font-semibold ${
+                link.path === location.pathname && "text-[#eb2e4c]"
+              }`}
+            >
+              {link.label}
+            </Link>
           </li>
-          <li>
-            <a href="">Teams</a>
+        ))}
+        {location.pathname !== "/" && (
+          <button
+            onClick={handleLogout}
+            className="btn bg-[#eb2e4c] text-white"
+          >
+            LOGOUT
+          </button>
+        )}
+      </ul>
+
+      {/* Mobile Menu */}
+      <ul
+        className={`flex flex-col items-start absolute transition-all duration-500 ease-in-out top-18 ${
+          toggle ? "left-0 opacity-100" : "-left-full opacity-0"
+        } h-[300px] w-full bg-[#041d6d] text-white lg:hidden gap-5 justify-center px-5`}
+      >
+        {links.map((link, index) => (
+          <li key={index}>
+            <Link
+              to={link.path}
+              className={`text-sm font-semibold ${
+                link.path === location.pathname && "text-[#eb2e4c]"
+              }`}
+              onClick={() => setToggle(false)}
+            >
+              {link.label}
+            </Link>
           </li>
-          <li>
-            <a href="" className="px-5 py-1 rounded-2xl bg-blue-800">
-              Login
-            </a>
-          </li>
-        </ul>
-      </nav>
+        ))}
+        {location.pathname !== "/" && (
+          <button
+            onClick={handleLogout}
+            className="btn bg-[#eb2e4c] text-white"
+          >
+            LOGOUT
+          </button>
+        )}
+      </ul>
 
-      <nav className="flex justify-between fixed z-20 text-white w-full px-10 h-16 items-center lg:hidden bg-[rgba(0,0,0,0.2)]">
-        <h1>Logo</h1>
-        <button className="z-40" onClick={() => setToggle(!toggle)}>
-          <i
-            className={`text-xl transition-all ease-in-out ${
-              toggle
-                ? "text-black fa-solid fa-xmark"
-                : "fa-solid fa-bars text-white"
-            }`}
-          ></i>
-        </button>
-
-        <div
-          className={`${
-            toggle ? "left-0" : "-left-[100vw]"
-          } flex flex-col lg:hidden fixed top-0 h-screen w-screen z-20 bg-white items-center justify-center gap-5 transition-all ease-in-out text-black`}
-        >
-          <ul className="flex flex-col gap-5 text-center">
-            <li>
-              <a href="">Home</a>
-            </li>
-            <li>
-              <a href="">About</a>
-            </li>
-            <li>
-              <a href="">Sports</a>
-            </li>
-            <li>
-              <a href="">News</a>
-            </li>
-          </ul>
-
-          <ul className="flex flex-col gap-5 text-center">
-            <li>
-              <a href="">Contact</a>
-            </li>
-            <li>
-              <a href="">Teams</a>
-            </li>
-            <li>
-              <a
-                href=""
-                className="px-5 py-1 rounded-2xl bg-blue-800 text-white"
-              >
-                Login
-              </a>
-            </li>
-          </ul>
-        </div>
-      </nav>
-    </>
+      <button
+        className="flex lg:hidden mr-4"
+        onClick={() => setToggle(!toggle)}
+      >
+        <i
+          className={`fa-solid ${
+            toggle ? "fa-xmark" : "fa-bars"
+          } text-2xl font-semibold`}
+        ></i>
+      </button>
+    </div>
   );
 };
 

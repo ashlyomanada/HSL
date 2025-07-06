@@ -19,6 +19,7 @@ const Schools = () => {
   const [previewUrl, setPreviewUrl] = useState(null);
   const [loading, setLoading] = useState(false);
   const schoolModalRef = useRef();
+  const [loadedImages, setLoadedImages] = useState([]);
 
   const handleFile = (e) => {
     const file = e.target.files[0];
@@ -151,6 +152,8 @@ const Schools = () => {
         handleEdit={handleEdit}
         handleDelete={handleDelete}
         loading={loading}
+        loadedImages={loadedImages}
+        setLoadedImages={setLoadedImages}
       />
     </AdminSection>
   );

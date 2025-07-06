@@ -42,7 +42,11 @@ const CategoriesModal = forwardRef(
 
             <fieldset className="fieldset">
               <legend className="fieldset-legend">Choose logo</legend>
-              <input type="file" className="file-input" onChange={handleFile} />
+              <input
+                type="file"
+                className="file-input w-full"
+                onChange={handleFile}
+              />
               <label className="label">Max size 2MB</label>
             </fieldset>
 

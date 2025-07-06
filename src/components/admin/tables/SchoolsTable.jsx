@@ -1,13 +1,21 @@
 import React from "react";
 import Loader from "../loader/Loader";
+import TableImgLoader from "../loader/TableImgLoader";
 
-const SchoolsTable = ({ schools, handleEdit, handleDelete, loading }) => {
+const SchoolsTable = ({
+  schools,
+  handleEdit,
+  handleDelete,
+  loading,
+  loadedImages,
+  setLoadedImages,
+}) => {
   return (
-    <div className="overflow-x-auto bg-white rounded-lg shadow-xl">
+    <div className="overflow-x-auto bg-white rounded-lg shadow-xl text-black">
       <table className="table">
         {/* head */}
         <thead>
-          <tr>
+          <tr className="text-black">
             <th>School Name</th>
             <th className="text-center">School Address</th>
             <th className="text-center">Action</th>
@@ -28,9 +36,20 @@ const SchoolsTable = ({ schools, handleEdit, handleDelete, loading }) => {
                   <div className="flex justify-start items-center gap-3">
                     <div className="avatar">
                       <div className="mask mask-squircle h-12 w-12">
+                        {!loadedImages.includes(school.id) && (
+                          <TableImgLoader />
+                        )}
                         <img
+                          className={`transition-opacity ease-in-out duration-500 ${
+                            loadedImages.includes(school.id)
+                              ? "opacity-100"
+                              : "opacity-0 absolute"
+                          }`}
                           src={`http://127.0.0.1:8000/storage/${school.logo_url}`}
                           alt="logo"
+                          onLoad={() =>
+                            setLoadedImages((prev) => [...prev, school.id])
+                          }
                         />
                       </div>
                     </div>

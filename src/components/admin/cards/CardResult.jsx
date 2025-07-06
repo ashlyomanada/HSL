@@ -2,7 +2,7 @@ import React from "react";
 
 const CardResult = ({ match, handleEdit, handleConvertDate, url }) => {
   return (
-    <div className="flex flex-col items-center justify-center gap-5 bg-darkBlue rounded-lg shadow-md p-5 relative">
+    <div className="flex flex-col items-center justify-center gap-5 bg-[darkBlue] rounded-lg shadow-md p-5 relative">
       <button
         className="absolute right-0 top-0 text-white p-5 text-xl cursor-pointer"
         onClick={() => handleEdit(match)}

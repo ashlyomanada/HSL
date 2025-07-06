@@ -1,25 +1,29 @@
-import axios from "axios";
+import axiosInstance from "./axiosInstance";
 
-const url = import.meta.env.VITE_API_URL;
-
+// Get all teams
 export const getTeams = async () => {
   try {
-    const response = await axios.get(`${url}/teams`);
+    const response = await axiosInstance.get("/teams");
     return response.data;
   } catch (error) {
-    console.error("Error fetching data", error);
+    console.error("Error fetching teams:", error);
   }
 };
 
+// Get category type
 export const getCategoryType = async (category) => {
   try {
-    const response = await axios.post(`${url}/teams/getCategoryType`, category);
+    const response = await axiosInstance.post(
+      "/teams/getCategoryType",
+      category
+    );
     return response.data;
   } catch (error) {
-    console.error("Error fetching data", error);
+    console.error("Error fetching category type:", error);
   }
 };
 
+// Create new team
 export const createTeam = async (form) => {
   const formData = {
     school_id: parseInt(form.school_id),
@@ -28,13 +32,14 @@ export const createTeam = async (form) => {
   };
 
   try {
-    const response = await axios.post(`${url}/teams`, formData);
+    const response = await axiosInstance.post("/teams", formData);
     return response.data;
   } catch (error) {
-    console.error("Error Creating Team:", error);
+    console.error("Error creating team:", error);
   }
 };
 
+// Update team
 export const updateTeam = async (id, form) => {
   const formData = {
     school_id: parseInt(form.school_id),
@@ -43,18 +48,19 @@ export const updateTeam = async (id, form) => {
   };
 
   try {
-    const response = await axios.put(`${url}/teams/${id}`, formData);
+    const response = await axiosInstance.put(`/teams/${id}`, formData);
     return response.data;
   } catch (error) {
-    console.error("Error Updating Team:", error);
+    console.error("Error updating team:", error);
   }
 };
 
+// Delete team
 export const deleteTeam = async (id) => {
   try {
-    const response = await axios.delete(`${url}/teams/${id}`);
+    const response = await axiosInstance.delete(`/teams/${id}`);
     return response.data;
   } catch (error) {
-    console.error("Error Deleting Team:", error);
+    console.error("Error deleting team:", error);
   }
 };

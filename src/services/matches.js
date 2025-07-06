@@ -1,60 +1,74 @@
-import axios from "axios";
+import axiosInstance from "./axiosInstance";
 
-const url = import.meta.env.VITE_API_URL;
-
+// Get all matches
 export const getMatches = async () => {
   try {
-    const response = await axios.get(`${url}/matches`);
+    const response = await axiosInstance.get("/matches");
     return response.data;
   } catch (error) {
     console.error("Error fetching data:", error);
   }
 };
 
+// Get matches by category
 export const getMatchesCategory = async (form) => {
   try {
-    const response = await axios.post(
-      `${url}/matches/showMatchesCategory`,
+    const response = await axiosInstance.post(
+      "/matches/showMatchesCategory",
       form
     );
     return response.data;
   } catch (error) {
-    console.error(error);
+    console.error("Error fetching category matches:", error);
   }
 };
 
+// Get upcoming/next matches
+export const nextMatch = async (form) => {
+  try {
+    const response = await axiosInstance.post("/matches/nextMatches", form);
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching next matches:", error);
+  }
+};
+
+// Get single match
 export const getSingleMatch = async (id) => {
   try {
-    const response = await axios.get(`${url}/matches/${id}`);
+    const response = await axiosInstance.get(`/matches/${id}`);
     return response.data;
   } catch (error) {
-    console.error("Error fetching data:", error);
+    console.error("Error fetching match:", error);
   }
 };
 
+// Create new match
 export const createMatches = async (form) => {
   try {
-    const response = await axios.post(`${url}/matches`, form);
+    const response = await axiosInstance.post("/matches", form);
     return response.data;
   } catch (error) {
-    console.error(error);
+    console.error("Error creating match:", error);
   }
 };
 
+// Update match
 export const updateMatches = async (id, form) => {
   try {
-    const response = await axios.put(`${url}/matches/${id}`, form);
+    const response = await axiosInstance.put(`/matches/${id}`, form);
     return response.data;
   } catch (error) {
-    console.log(error);
+    console.error("Error updating match:", error);
   }
 };
 
+// Delete match
 export const deleteMatches = async (id) => {
   try {
-    const response = await axios.delete(`${url}/matches/${id}`);
+    const response = await axiosInstance.delete(`/matches/${id}`);
     return response.data;
   } catch (error) {
-    console.log(error);
+    console.error("Error deleting match:", error);
   }
 };

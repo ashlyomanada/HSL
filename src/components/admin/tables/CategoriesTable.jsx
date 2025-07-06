@@ -1,5 +1,6 @@
 import React from "react";
 import Loader from "../loader/Loader";
+import TableImgLoader from "../loader/TableImgLoader";
 
 const CategoriesTable = ({
   loading,
@@ -9,12 +10,14 @@ const CategoriesTable = ({
   totalPages,
   currentPage,
   setCurrentPage,
+  loadedImages,
+  setLoadedImages,
 }) => {
   return (
-    <div className="overflow-x-auto bg-white rounded-lg shadow-xl flex flex-col">
+    <div className="overflow-x-auto bg-white text-black rounded-lg shadow-xl flex flex-col">
       <table className="table">
         <thead>
-          <tr>
+          <tr className="text-black">
             <th className="text-center">Image</th>
             <th className="text-center">Category Name</th>
             <th className="text-center">Action</th>
@@ -32,9 +35,18 @@ const CategoriesTable = ({
               <tr key={category.id}>
                 <td className="flex items-center justify-center">
                   <div className="mask mask-squircle h-12 w-12">
+                    {!loadedImages.includes(category.id) && <TableImgLoader />}
                     <img
                       src={`http://127.0.0.1:8000/storage/${category.image_url}`}
+                      className={`transition-opacity ease-in-out duration-500${
+                        loadedImages.includes(category.id)
+                          ? "opacity-100"
+                          : "opacity-0 absolute"
+                      }`}
                       alt="logo"
+                      onLoad={() =>
+                        setLoadedImages((prev) => [...prev, category.id])
+                      }
                     />
                   </div>
                 </td>

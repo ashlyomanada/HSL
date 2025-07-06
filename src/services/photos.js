@@ -1,24 +1,26 @@
-import axios from "axios";
-const url = import.meta.env.VITE_API_URL;
+import axiosInstance from "./axiosInstance";
 
-// export const getPhotos = async () => {
-//   try {
-//     const response = await axios.get(`${url}/photos`);
-//     return response.data;
-//   } catch (error) {
-//     console.error("Error fetching data : ", error);
-//   }
-// };
-
-export const getPhotosCategory = async (id) => {
+// GET all photos
+export const getPhotos = async () => {
   try {
-    const response = await axios.get(`${url}/photos/getCategoryType/${id}`);
+    const response = await axiosInstance.get("/photos");
     return response.data;
   } catch (error) {
-    console.error("Error fetching data : ", error);
+    console.error("Error fetching data:", error);
   }
 };
 
+// GET photos by category ID
+export const getPhotosCategory = async (id) => {
+  try {
+    const response = await axiosInstance.get(`/photos/getCategoryType/${id}`);
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching data:", error);
+  }
+};
+
+// CREATE photo with image upload
 export const createPhotos = async (form) => {
   const formData = new FormData();
   formData.append("category_id", form.category_id);
@@ -27,33 +29,28 @@ export const createPhotos = async (form) => {
   formData.append("image", form.image);
 
   try {
-    const response = await axios.post(`${url}/photos`, formData, {
+    const response = await axiosInstance.post("/photos", formData, {
       headers: {
         "Content-Type": "multipart/form-data",
       },
     });
     return response.data;
   } catch (error) {
-    console.error("Error creating data : ", error);
+    console.error("Error creating data:", error);
   }
 };
 
+// UPDATE photo (with PUT via POST method override)
 export const updatePhotos = async (id, form) => {
   const formData = new FormData();
   formData.append("category_id", form.category_id);
   formData.append("name", form.name);
   formData.append("description", form.description);
-  formData.append("image", form.image);
-
-  // if (form.image instanceof File) {
-  //   formData.append("image", form.image);
-  // } else {
-  //   formData.append("image", form.image);
-  // }
+  formData.append("image", form.image); // works for both new and old
 
   try {
-    const response = await axios.post(
-      `${url}/photos/${id}?_method=PUT`,
+    const response = await axiosInstance.post(
+      `/photos/${id}?_method=PUT`,
       formData,
       {
         headers: {
@@ -68,11 +65,12 @@ export const updatePhotos = async (id, form) => {
   }
 };
 
+// DELETE photo
 export const deletePhoto = async (id) => {
   try {
-    const response = await axios.delete(`${url}/photos/${id}`);
+    const response = await axiosInstance.delete(`/photos/${id}`);
     return response.data;
   } catch (error) {
-    console.error("Error deleting data : ", error);
+    console.error("Error deleting photo:", error);
   }
 };
