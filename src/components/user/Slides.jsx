@@ -39,7 +39,8 @@ const Slides = ({ teams = [], loading }) => {
     setChunkedTeams(chunkArray(teams, chunkSize));
   }, [teams, chunkSize]);
 
-  if (loading) return <div className="text-white">Loading...</div>;
+  if (loading)
+    return <span className="loading loading-spinner loading-xl"></span>;
 
   return (
     <div className="relative w-full">

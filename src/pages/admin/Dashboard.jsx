@@ -1,4 +1,6 @@
 import AdminSection from "@/components/admin/AdminSection";
+import MatchCalendar from "@/components/admin/MatchCalendar";
+import UpcomingMatches from "@/components/admin/UpcomingMatches";
 import MatchBarChart from "@/components/charts/MatchBarChart";
 import MatchPieChart from "@/components/charts/MatchPieChart";
 import React from "react";
@@ -6,25 +8,15 @@ import React from "react";
 const Dashboard = () => {
   return (
     <AdminSection>
-      <div className="grid md:grid-cols-3 gap-3">
-        <div className="flex flex-col items-center justify-center aspect-video bg-[darkBlue] rounded-lg shadow-md">
-          <h1 className="text-5xl text-white font-semibold">20</h1>
-          <h2 className="text-2xl text-white font-semibold">Teams</h2>
-        </div>
-        <div className="flex aspect-video flex-col items-center justify-center bg-[darkBlue] rounded-lg shadow-md">
-          <h1 className="text-5xl text-white font-semibold text-center">OKC</h1>
-          <h2 className="text-2xl text-white font-semibold">Top 1</h2>
-        </div>
-        <div className="flex aspect-video flex-col items-center justify-center bg-[darkBlue] rounded-lg shadow-md">
-          <h1 className="text-5xl text-white font-semibold text-center"></h1>
-          <h2 className="text-2xl text-white font-semibold"></h2>
-        </div>
-        {/* <div className="flex aspect-video flex-col items-center justify-center bg-[darkBlue] rounded-lg shadow-md"></div> */}
-      </div>
+      <MatchBarChart />
 
       <div className="grid lg:grid-cols-2 gap-5 w-full">
-        <MatchBarChart />
-        <MatchPieChart />
+        <div className="flex flex-col gap-2 bg-white p-3 rounded-xl">
+          <h2 className="text-xl md:text-2xl font-bold">Schedule</h2>
+          <MatchCalendar />
+        </div>
+        {/* <MatchBarChart /> */}
+        <UpcomingMatches />
       </div>
     </AdminSection>
   );

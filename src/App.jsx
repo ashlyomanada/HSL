@@ -12,7 +12,7 @@ import Footer from "./components/user/Footer";
 import ToggleProvider from "./context/ToggleProvider";
 import CategoryProvider from "./context/CategoryProvider";
 import ProtectedRoute from "./components/auth/ProtectedRoute";
-import "flowbite";
+import "react-big-calendar/lib/css/react-big-calendar.css";
 
 function App() {
   const { pathname } = useLocation();

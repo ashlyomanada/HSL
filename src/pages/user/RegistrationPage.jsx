@@ -13,6 +13,7 @@ const RegistrationPage = () => {
   });
 
   const [loading, setLoading] = useState(false);
+  const [agree, setAgree] = useState(false);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -22,16 +23,23 @@ const RegistrationPage = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    if (!agree) {
+      Swal.fire(
+        "Warning",
+        "You must agree to the Terms and Conditions",
+        "warning"
+      );
+      return;
+    }
+
     if (form.password !== form.password_confirmation) {
       Swal.fire("Error", "Passwords do not match!", "error");
       return;
     }
 
     setLoading(true);
-
     try {
       await register(form);
-
       Swal.fire("Success", "Account created successfully!", "success");
       setForm({
         name: "",
@@ -40,13 +48,12 @@ const RegistrationPage = () => {
         password_confirmation: "",
         role: "user",
       });
+      setAgree(false); // reset checkbox
     } catch (error) {
       console.error("Registration failed:", error);
-
       const message =
         error?.response?.data?.message ||
         "Something went wrong. Please try again.";
-
       Swal.fire("Registration Failed", message, "error");
     } finally {
       setLoading(false);
@@ -128,9 +135,11 @@ const RegistrationPage = () => {
               <input
                 id="terms"
                 type="checkbox"
-                required
+                checked={agree}
+                onChange={(e) => setAgree(e.target.checked)}
                 className="h-4 w-4 shrink-0 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
               />
+
               <label className="text-slate-600 ml-3 block text-sm">
                 I accept the{" "}
                 <a
@@ -146,7 +155,7 @@ const RegistrationPage = () => {
           <div className="mt-8">
             <button
               type="submit"
-              className="btn btn-primary w-full"
+              className="btn bg-[darkBlue] hover:bg-blue-800 text-white w-full"
               disabled={loading}
             >
               {loading ? "Creating..." : "Create an account"}

@@ -1,15 +1,14 @@
 import React, { useEffect, useState } from "react";
 import Header from "../../components/user/Header";
-import img from "@/assets/about.webp";
 import { useCategoryContext } from "@/context/CategoryProvider";
 import { getPhotos, getPhotosCategory } from "@/services/photos";
 const PhotosPage = () => {
-  const { categories } = useCategoryContext();
+  const { categories, isLoadingCategories } = useCategoryContext();
   const [photos, setPhotos] = useState([]);
   const [loadedImages, setLoadedImages] = useState([]);
   const [isAllBtn, setIsAllBtn] = useState(true);
   const [selectedBtn, setSelectedBtn] = useState(null);
-
+  const [isLoading, setIsLoading] = useState(false);
   const handlePhotoCategory = async (category_id) => {
     setSelectedBtn(category_id);
     setIsAllBtn(false);
@@ -34,11 +33,15 @@ const PhotosPage = () => {
 
   useEffect(() => {
     const fetchPhotos = async () => {
+      setIsLoading(true);
       try {
         const response = await getPhotos();
         setPhotos(response);
       } catch (error) {
         console.error(error);
+        setIsLoading(true);
+      } finally {
+        setIsLoading(false);
       }
     };
 
@@ -63,7 +66,9 @@ const PhotosPage = () => {
               </button>
             )}
 
-            {categories?.length > 0 ? (
+            {isLoadingCategories ? (
+              <span className="loading loading-spinner loading-sm"></span>
+            ) : categories?.length > 0 ? (
               categories.map((categ) => (
                 <button
                   key={categ.id}
@@ -79,7 +84,9 @@ const PhotosPage = () => {
           </div>
         </div>
 
-        {photos?.length > 0 ? (
+        {isLoading ? (
+          <span className="loading loading-spinner loading-xl"></span>
+        ) : photos?.length > 0 ? (
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5 w-full">
             {photos.map((photo) => (
               <Img

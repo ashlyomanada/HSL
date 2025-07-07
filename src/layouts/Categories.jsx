@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import NextMatch from "@/assets/nextMatch.webp";
 import { getCategories } from "@/services/categories";
 import CategoriesLoader from "@/components/user/loader/CategoriesLoader";
+import Header from "@/components/user/Header";
 
 const Categories = () => {
   const [categories, setCategories] = useState([]);
@@ -23,19 +24,22 @@ const Categories = () => {
     fetchCategories();
   }, []);
   return (
-    <div className="px-5 xl:px-20 py-10 grid md:grid-cols-2 lg:grid-cols-4 gap-5">
-      {!loading ? (
-        categories.map((category) => (
-          <Card key={category.id} category={category} />
-        ))
-      ) : (
-        <>
-          <CategoriesLoader />
-          <CategoriesLoader />
-          <CategoriesLoader />
-          <CategoriesLoader />
-        </>
-      )}
+    <div className="flex flex-col items-center justify-center gap-10 px-5 xl:px-20 py-10 ">
+      <Header header={"Sports Category"} subHeader={"Leagues"} />
+      <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-5">
+        {!loading ? (
+          categories.map((category) => (
+            <Card key={category.id} category={category} />
+          ))
+        ) : (
+          <>
+            <CategoriesLoader />
+            <CategoriesLoader />
+            <CategoriesLoader />
+            <CategoriesLoader />
+          </>
+        )}
+      </div>
     </div>
   );
 };
@@ -44,7 +48,7 @@ const Card = ({ category }) => {
   const url = import.meta.env.VITE_STORAGE_URL;
 
   return (
-    <div className="flex gap-5">
+    <div className="flex gap-5 border border-gray-300 p-5 rounded-xl shadow-xl">
       <img
         src={`${url}/${category.image_url}`}
         className="h-20 w-20 object-cover rounded-full"

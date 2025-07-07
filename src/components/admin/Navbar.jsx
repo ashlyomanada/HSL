@@ -1,10 +1,12 @@
 import React, { useState } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useToggle } from "@/context/ToggleProvider";
+import { logout } from "@/services/auth";
+import Swal from "sweetalert2";
 
 const navItems = [
   { to: "/admin/dashboard", icon: "fa-chart-simple", label: "Dashboard" },
-  { to: "/admin/schedule", icon: "fa-calendar-days", label: "Schedule" },
+  // { to: "/admin/schedule", icon: "fa-calendar-days", label: "Schedule" },
   { to: "/admin/matches", icon: "fa-trophy", label: "Matches" },
   { to: "/admin/results", icon: "fa-ranking-star", label: "Results" },
   { to: "/admin/teams", icon: "fa-people-group", label: "Teams" },
@@ -39,19 +41,47 @@ const Navbar = () => {
   const handleToggle = () => {
     setToggle((prev) => !prev);
   };
+  const navigate = useNavigate();
+
+  const handleLogout = async () => {
+    const result = await Swal.fire({
+      title: "Are you sure?",
+      text: "You will be logged out.",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Yes, logout!",
+    });
+
+    if (result.isConfirmed) {
+      try {
+        await logout(); // Call API or remove token
+        sessionStorage.clear(); // Optional: clear all session
+        Swal.fire(
+          "Logged out!",
+          "You have been successfully logged out.",
+          "success"
+        );
+        navigate("/");
+      } catch (error) {
+        Swal.fire("Error", "Something went wrong while logging out.", "error");
+      }
+    }
+  };
 
   return (
     <>
       {/* Sidebar large size*/}
       <nav
-        className={`hidden fixed left-0 top-0 h-screen overflow-y-auto transition-all duration-300 bg-[darkBlue] text-white lg:flex flex-col gap-10 p-5 ${
+        className={`hidden fixed left-0 top-0 h-screen overflow-y-auto overflow-x-hidden transition-all duration-300 bg-[darkBlue] text-white lg:flex flex-col gap-10 p-5 ${
           toggle ? "w-[20%]" : "w-[6%]"
         }`}
       >
-        <div className="flex justify-start items-center gap-3 px-2.5">
+        <div className="flex justify-start items-center  gap-3 px-2.5">
           <i className="fa-solid fa-user-tie text-xl"></i>
           <h1
-            className={`px-2 lg:text-xl xl:text-2xl font-semibold transition-all ease-in-out ${
+            className={`px-2 lg:text-xl xl:text-2xl font-semibold transition-all ease-in-out w-full ${
               toggle ? "opacity-100" : "opacity-0"
             }`}
           >
@@ -59,7 +89,7 @@ const Navbar = () => {
           </h1>
         </div>
 
-        <ul className="flex flex-col gap-1">
+        <ul className="flex flex-col gap-1 w-full">
           {navItems.map(({ to, icon, label }) => (
             <NavItem
               key={to}
@@ -70,12 +100,19 @@ const Navbar = () => {
               toggle={toggle}
             />
           ))}
+          <button
+            className="px-3 flex items-center gap-5 cursor-pointer"
+            onClick={handleLogout}
+          >
+            <i className="fa-solid fa-right-from-bracket w-5"></i>
+            <span className={`${toggle ? "flex" : "hidden"}`}>Logout</span>
+          </button>
         </ul>
       </nav>
 
       {/* Sidebar large smallsize*/}
       <nav
-        className={`fixed w-screen top-0 h-screen transition-all ease-in-out duration-500 bg-[darkBlue] text-white flex flex-col gap-10 p-5 z-30 lg:hidden ${
+        className={`fixed overflow-y-auto w-screen top-0 h-screen transition-all ease-in-out duration-500 bg-[darkBlue] text-white flex flex-col gap-10 p-5 z-30 lg:hidden ${
           toggle ? "left-[-100vw]" : "left-0"
         }`}
       >
@@ -86,7 +123,7 @@ const Navbar = () => {
           </button>
         </div>
 
-        <ul className="flex flex-col gap-1">
+        <ul className="flex flex-col items-start gap-1">
           {navItems.map(({ to, icon, label }) => (
             <NavItem
               key={to}
@@ -99,6 +136,14 @@ const Navbar = () => {
             />
           ))}
         </ul>
+
+        <button
+          className="px-3 flex items-center gap-5 cursor-pointer"
+          onClick={handleLogout}
+        >
+          <i className="fa-solid fa-right-from-bracket w-5"></i>
+          <span className={`${toggle ? "flex" : "hidden"}`}>Logout</span>
+        </button>
       </nav>
 
       {/* Topbar */}

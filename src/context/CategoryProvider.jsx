@@ -5,25 +5,25 @@ const CategoryContext = createContext();
 export const useCategoryContext = () => useContext(CategoryContext);
 const CategoryProvider = ({ children }) => {
   const [categories, setCategories] = useState([]);
-  const [loading, setLoading] = useState(false);
+  const [isLoadingCategories, setIsLoadingCategories] = useState(false);
   useEffect(() => {
     const fetchCategories = async () => {
-      setLoading(true);
+      setIsLoadingCategories(true);
       try {
         const response = await getCategories();
         setCategories(response);
       } catch (error) {
         console.error(error);
-        setLoading(true);
+        setIsLoadingCategories(true);
       } finally {
-        setLoading(false);
+        setIsLoadingCategories(false);
       }
     };
 
     fetchCategories();
   }, []);
   return (
-    <CategoryContext.Provider value={{ categories }}>
+    <CategoryContext.Provider value={{ categories, isLoadingCategories }}>
       {children}
     </CategoryContext.Provider>
   );

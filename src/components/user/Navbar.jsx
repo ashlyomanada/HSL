@@ -59,6 +59,20 @@ const Navbar = () => {
     }
   };
 
+  const handleCheckLogin = () => {
+    const token = sessionStorage.getItem("token");
+    const role = sessionStorage.getItem("role");
+
+    if (!token || !role) {
+      Swal.fire({
+        title: "Unauthorized",
+        text: "You must log in first to continue.",
+        icon: "warning",
+        confirmButtonText: "OK",
+      });
+    }
+  };
+
   useEffect(() => {
     setIsBgWhite(false);
     if (location.pathname === "/home") {
@@ -101,12 +115,13 @@ const Navbar = () => {
               className={`text-sm font-semibold ${
                 link.path === location.pathname && "text-[#eb2e4c]"
               }`}
+              onClick={handleCheckLogin}
             >
               {link.label}
             </Link>
           </li>
         ))}
-        {location.pathname !== "/" && (
+        {sessionStorage.getItem("token") && sessionStorage.getItem("role") && (
           <button
             onClick={handleLogout}
             className="btn bg-[#eb2e4c] text-white"
@@ -135,14 +150,9 @@ const Navbar = () => {
             </Link>
           </li>
         ))}
-        {location.pathname !== "/" && (
-          <button
-            onClick={handleLogout}
-            className="btn bg-[#eb2e4c] text-white"
-          >
-            LOGOUT
-          </button>
-        )}
+        <button onClick={handleLogout} className="btn bg-[#eb2e4c] text-white">
+          LOGOUT
+        </button>
       </ul>
 
       <button

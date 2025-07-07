@@ -26,6 +26,8 @@ const MatchCalendar = () => {
   const [selectedMatch, setSelectedMatch] = useState(null);
   const modalRef = useRef(null);
   const [loading, setLoading] = useState(false);
+  const [currentDate, setCurrentDate] = useState(new Date());
+  const [currentView, setCurrentView] = useState("month");
 
   useEffect(() => {
     const fetchData = async () => {
@@ -91,7 +93,10 @@ const MatchCalendar = () => {
           onSelectEvent={handleSelectEvent}
           style={{ height: 450 }}
           views={["month", "week", "day", "agenda"]}
-          defaultView="month"
+          view={currentView} // <-- controlled view
+          onView={(view) => setCurrentView(view)} // <-- handle view change
+          date={currentDate}
+          onNavigate={(date) => setCurrentDate(date)}
           toolbar={true}
           popup
         />
